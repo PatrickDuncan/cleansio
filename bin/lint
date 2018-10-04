@@ -1,0 +1,8 @@
+#!/bin/sh
+
+for file in $(find . -name "*.py"); do
+  echo "========================================"
+  echo "$file"
+  echo "========================================"
+  pylint $file
+done

@@ -31,3 +31,23 @@ python cleansio.py <FLAC_PATH>
     ```
 7. _(OPTIONAL)_ Install the [Google Cloud SDK](https://cloud.google.com/sdk/docs/)
 8. You're all set!
+
+## Developer Setup
+
+1. Follow Setup
+2. Install the following Python libraries:
+    ```
+    pip install pylint
+    ```
+
+### Linting
+
+**Run**
+```
+./bin/lint
+```
+
+**Help**
+```
+pylint --help-msg=<ID>
+```
