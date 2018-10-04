@@ -1,5 +1,7 @@
 # Cleansio
 
+[![Build Status](https://travis-ci.com/PatrickDuncan/cleansio.svg?token=9iihWUtXPiNNfbJx3N13&branch=master)](https://travis-ci.com/PatrickDuncan/cleansio)
+
 ## Usage
 ```
 python cleansio.py <FLAC_PATH>
