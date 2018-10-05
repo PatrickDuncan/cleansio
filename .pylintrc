@@ -1,2 +1,2 @@
 [MESSAGES CONTROL]
-disable=no-member
+disable=fixme,no-member,too-few-public-methods

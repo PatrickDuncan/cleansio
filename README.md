@@ -4,7 +4,7 @@
 
 ## Usage
 ```
-python cleansio.py <FLAC_PATH>
+python cleansio/cleansio.py <FLAC_PATH>
 ```
 - FLAC_PATH
     - Must be a .flac audio file
