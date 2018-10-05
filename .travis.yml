@@ -5,6 +5,6 @@ python:
   - "3.6"
 install:
   - pip install google-cloud-speech
-  - pip install pylint
+  - pip install --upgrade pylint
 script:
   ./bin/lint

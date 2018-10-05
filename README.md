@@ -39,7 +39,7 @@ python cleansio.py <FLAC_PATH>
 1. Follow Setup
 2. Install the following Python libraries:
     ```
-    pip install pylint
+    pip install --upgrade pylint
     ```
 
 ### Linting

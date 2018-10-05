@@ -1,8 +1,6 @@
 #!/bin/sh
 
 for file in $(find . -name "*.py"); do
-  echo "========================================"
-  echo "$file"
-  echo "========================================"
-  pylint $file
+  echo "|||||||||| $file"
+  pylint --persistent=no $file | sed '1d'
 done
