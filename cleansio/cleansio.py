@@ -13,6 +13,11 @@ def cleanup():
     """ Removes temporary files """
     if 'CLEANSIO_TEMP_FILE' in os.environ:
         os.remove(os.environ.get('CLEANSIO_TEMP_FILE'))
+    if 'CLEANSIO_SLICES_LIST' in os.environ:
+        slices_list_env_var = os.environ['CLEANSIO_SLICES_LIST']
+        slices_list = slices_list_env_var[2:-2].split("', '")
+        for slice in slices_list:
+            os.remove(slice)
 
 if __name__ == '__main__':
     if valid_input():

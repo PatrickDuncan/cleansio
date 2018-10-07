@@ -3,6 +3,7 @@
 import magic
 from pydub import AudioSegment
 from .convert import convert
+from .helper import *
 
 class AudioFile:
     """ Classifies an audio file """
@@ -11,6 +12,8 @@ class AudioFile:
         audio_segment = AudioSegment.from_file(self.file_path)
         self.channels = audio_segment.channels
         self.sample_rate = audio_segment.frame_rate
+        slice_length = 5000 # time in milliseconds
+        self.slices_file_paths = self.__create_slices(audio_segment, slice_length)
 
     def __converted_file_path(self, file_path):
         """ The input file or converts the input to a GCS compliant encoding """
@@ -23,3 +26,14 @@ class AudioFile:
             self.encoding = 'FLAC'
             return file_path
         return convert(file_path, encoding='wav')
+
+    def __create_slices(self, audio_segment, slice_length):
+        extension = self.encoding.lower()
+        temp_dir = create_temp_dir()
+        slices_file_paths = [];
+        for index, chunk in enumerate(audio_segment[::slice_length]):
+            with open(f"{temp_dir}slice-{index}.{extension}", "wb") as slice_file:
+                chunk.export(slice_file, format=extension)
+                slices_file_paths.append(slice_file.name)
+        create_environment_variable('CLEANSIO_SLICES_LIST',str(slices_file_paths))
+        return slices_file_paths
