@@ -2,5 +2,5 @@
 
 for file in $(find . -name "*.py"); do
   echo "|||||||||| $file"
-  pylint --persistent=no $file | sed '1d'
+  pylint $file | sed '1d'
 done

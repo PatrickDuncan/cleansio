@@ -4,13 +4,12 @@
 
 ## Usage
 ```
-python cleansio/cleansio.py <FLAC_PATH>
+python cleansio/cleansio.py <FILE_PATH>
 ```
-- FLAC_PATH
-    - Must be a .flac audio file
+- FILE_PATH
+    - Must be a .flac or .wav audio file
     - It must be mono (as opposed to stereo)
     - Must be less than 10 seconds
-    - The sample rate must be 44100
 
 ### Requirements
 
@@ -31,8 +30,13 @@ python cleansio/cleansio.py <FLAC_PATH>
     ```
     pip install --upgrade google-cloud-speech
     ```
-7. _(OPTIONAL)_ Install the [Google Cloud SDK](https://cloud.google.com/sdk/docs/)
-8. You're all set!
+
+7. If you're using _macOS_ or _Windows_ follow [this](https://github.com/ahupp/python-magic#windows). Then install:
+    ```
+    pip install python-magic
+    ```
+8. _(OPTIONAL)_ Install the [Google Cloud SDK](https://cloud.google.com/sdk/docs/)
+9. You're all set!
 
 ## Developer Setup
 

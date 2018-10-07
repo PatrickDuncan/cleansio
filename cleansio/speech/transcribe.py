@@ -12,8 +12,8 @@ def transcribe(audio_file):
 
     audio = types.RecognitionAudio(content=content)
     config = types.RecognitionConfig(
-        encoding=enums.RecognitionConfig.AudioEncoding.FLAC,
-        sample_rate_hertz=44100,
+        encoding=enums.RecognitionConfig.AudioEncoding[audio_file.encoding],
+        sample_rate_hertz=audio_file.sample_rate,
         language_code='en-US')
 
     response = client.recognize(config, audio)
