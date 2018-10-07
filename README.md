@@ -7,7 +7,6 @@
 python cleansio/cleansio.py <FILE_PATH>
 ```
 - FILE_PATH
-    - Must be a .flac or .wav audio file
     - It must be mono (as opposed to stereo)
     - Must be less than 10 seconds
 
@@ -30,13 +29,16 @@ python cleansio/cleansio.py <FILE_PATH>
     ```
     pip install --upgrade google-cloud-speech
     ```
-
 7. If you're using _macOS_ or _Windows_ follow [this](https://github.com/ahupp/python-magic#windows). Then install:
     ```
     pip install python-magic
     ```
-8. _(OPTIONAL)_ Install the [Google Cloud SDK](https://cloud.google.com/sdk/docs/)
-9. You're all set!
+8. Follow [this](https://github.com/jiaaro/pydub#getting-ffmpeg-set-up) and then install:
+    ```
+    pip install pydub
+    ```
+9. _(OPTIONAL)_ Install the [Google Cloud SDK](https://cloud.google.com/sdk/docs/)
+10. You're all set!
 
 ## Developer Setup
 
