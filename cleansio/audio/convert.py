@@ -4,6 +4,7 @@ import os
 from os.path import expanduser
 import time
 from pydub import AudioSegment
+from .helper import create_temp_dir
 
 def __create_converted_file(file_path, encoding):
     AudioSegment.from_file(file_path).export(

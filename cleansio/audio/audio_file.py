@@ -3,7 +3,7 @@
 import magic
 from pydub import AudioSegment
 from .convert import convert
-from .helper import *
+from .helper import create_temp_dir, create_env_var
 
 class AudioFile:
     """ Classifies an audio file """
@@ -30,10 +30,10 @@ class AudioFile:
     def __create_slices(self, audio_segment, slice_length):
         extension = self.encoding.lower()
         temp_dir = create_temp_dir()
-        slices_file_paths = [];
+        slices_file_paths = []
         for index, chunk in enumerate(audio_segment[::slice_length]):
             with open(f"{temp_dir}slice-{index}.{extension}", "wb") as slice_file:
                 chunk.export(slice_file, format=extension)
                 slices_file_paths.append(slice_file.name)
-        create_environment_variable('CLEANSIO_SLICES_LIST',str(slices_file_paths))
+        create_env_var('CLEANSIO_SLICES_LIST', str(slices_file_paths))
         return slices_file_paths

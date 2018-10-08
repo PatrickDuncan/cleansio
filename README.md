@@ -8,7 +8,6 @@ python cleansio/cleansio.py <FILE_PATH>
 ```
 - FILE_PATH
     - It must be mono (as opposed to stereo)
-    - Must be less than 10 seconds
 
 ### Requirements
 

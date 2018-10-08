@@ -1,11 +1,12 @@
 """ Convert audio to text """
 
 def transcribe(audio_file):
+    """ Transcribe each slice of the audio file """
     for audio_file_path in audio_file.slices_file_paths:
-        transcribe_each_slice(audio_file_path,audio_file.encoding,audio_file.sample_rate)
+        transcribe_each_slice(audio_file_path, audio_file.encoding, audio_file.sample_rate)
 
 def transcribe_each_slice(slice_file_path, audio_encoding, audio_sample_rate):
-    """ Accesses Google Cloud Speech and print the lyrics """
+    """ Accesses Google Cloud Speech and print the lyrics for each slice """
     from google.cloud import speech
     from google.cloud.speech import enums
     from google.cloud.speech import types
