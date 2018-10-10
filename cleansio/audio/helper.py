@@ -1,4 +1,4 @@
-""" Helper Functions """
+""" Helper Functions for Audio """
 
 import os
 from os.path import expanduser

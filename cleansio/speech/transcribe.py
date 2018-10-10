@@ -1,26 +1,39 @@
 """ Convert audio to text """
 
+from .helper import leading_zero
+
 def transcribe(audio_file):
     """ Transcribe each slice of the audio file """
-    for audio_file_path in audio_file.slices_file_paths:
-        transcribe_each_slice(audio_file_path, audio_file.encoding, audio_file.sample_rate)
+    length = len(audio_file.slices_file_paths)
+    for index, file_path in enumerate(audio_file.slices_file_paths):
+        transcribe_each_slice(
+            file_path,
+            index + 1, # Humans count start at 1!
+            length,
+            audio_file.encoding,
+            audio_file.sample_rate)
 
-def transcribe_each_slice(slice_file_path, audio_encoding, audio_sample_rate):
+def transcribe_each_slice(file_path, index, length, encoding, sample_rate):
     """ Accesses Google Cloud Speech and print the lyrics for each slice """
     from google.cloud import speech
     from google.cloud.speech import enums
     from google.cloud.speech import types
     client = speech.SpeechClient()
 
-    with open(slice_file_path, 'rb') as audio_content:
+    with open(file_path, 'rb') as audio_content:
         content = audio_content.read()
 
     audio = types.RecognitionAudio(content=content)
     config = types.RecognitionConfig(
-        encoding=enums.RecognitionConfig.AudioEncoding[audio_encoding],
-        sample_rate_hertz=audio_sample_rate,
+        encoding=enums.RecognitionConfig.AudioEncoding[encoding],
+        sample_rate_hertz=sample_rate,
         language_code='en-US')
 
     response = client.recognize(config, audio)
-    for result in response.results:
-        print(result)
+    print_transcription(response, index, length)
+
+def print_transcription(response, index, length):
+    if (len(response.results) < 1):
+        return
+    result = response.results[0].alternatives[0].transcript
+    print(f"{leading_zero(index)}/{leading_zero(length)}: {result}")
