@@ -6,8 +6,7 @@
 ```
 python cleansio/cleansio.py <FILE_PATH>
 ```
-- FILE_PATH
-    - It must be mono (as opposed to stereo)
+
 
 ### Requirements
 
@@ -27,10 +26,6 @@ python cleansio/cleansio.py <FILE_PATH>
 6. Install the following Python libraries:
     ```
     pip install --upgrade google-cloud-speech
-    ```
-7. If you're using _macOS_ or _Windows_ follow these [**additional steps**](https://github.com/ahupp/python-magic#windows). Then install:
-    ```
-    pip install python-magic
     ```
 8. Follow these [**additional steps**](https://github.com/jiaaro/pydub#getting-ffmpeg-set-up) and then install:
     ```
