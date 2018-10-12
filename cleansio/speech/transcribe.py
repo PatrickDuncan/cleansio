@@ -33,7 +33,8 @@ def transcribe_each_slice(file_path, index, length, encoding, sample_rate):
     print_transcription(response, index, length)
 
 def print_transcription(response, index, length):
-    if (len(response.results) < 1):
+    """ Prints the transcription as x/N: -Lyrics- """
+    if not response.results:
         return
     result = response.results[0].alternatives[0].transcript
     print(f"{leading_zero(index)}/{leading_zero(length)}: {result}")

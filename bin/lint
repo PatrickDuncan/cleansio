@@ -1,6 +1,11 @@
 #!/bin/sh
 
+exit_code=0
+
 for file in $(find . -name "*.py"); do
-  echo "|||||||||| $file"
-  pylint $file | sed '1d'
+  if ! pylint $file; then
+    exit_code=1
+  fi
 done
+
+exit $exit_code

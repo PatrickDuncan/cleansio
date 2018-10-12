@@ -32,8 +32,8 @@ class AudioFile:
         temp_dir = create_temp_dir()
         slices_file_paths = []
         for index, chunk in enumerate(audio_segment[::slice_length]):
-            slice = self.__create_slice(index, chunk, extension, temp_dir)
-            slices_file_paths.append(slice)
+            slice_path = self.__create_slice(index, chunk, extension, temp_dir)
+            slices_file_paths.append(slice_path)
         create_env_var('CLEANSIO_SLICES_LIST', str(slices_file_paths))
         return slices_file_paths
 

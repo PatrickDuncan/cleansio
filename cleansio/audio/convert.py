@@ -1,7 +1,6 @@
 """ Converts audio properties """
 
 import os
-from os.path import expanduser
 import time
 from pydub import AudioSegment
 from .helper import create_temp_dir
