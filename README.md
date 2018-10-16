@@ -55,6 +55,25 @@ python cleansio/cleansio.py <FILE_PATH>
 pylint --help-msg=<ID>
 ```
 
+## Docker
+
+**Run**
+```
+docker run \
+  --tty \
+  --rm \
+  --volume <PATH_TO_MUSIC>:/music \
+  --volume <PATH_TO_GOOGLE_CLOUD_SPEECH_JSON>:/google-cloud-speech-api.json \
+  --name cleansio \
+  patrickduncan/cleansio \
+  /music/<MUSIC_FILE_NAME>
+```
+
+**Build**
+```
+docker build --tag "cleansio:dev" .
+```
+
 ## Contributors
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
