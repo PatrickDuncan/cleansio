@@ -26,7 +26,7 @@ class AudioFile:
 
     def __create_slice(self, index, chunk, extension, temp_dir):
         file_name = file_name_no_ext(self.file_path)
-        file_path = temp_dir + file_name + "-" + str(index) + "." + extension
-        with open(file_path, "wb") as slice_file:
+        file_path = temp_dir + file_name + '-' + str(index) + '.' + extension
+        with open(file_path, 'wb') as slice_file:
             chunk.export(slice_file, format=extension)
             return slice_file.name

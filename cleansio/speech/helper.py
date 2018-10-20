@@ -6,5 +6,5 @@ def leading_zero(num):
     if not str_num.isdigit(): # Check if it's a number
         return str_num
     if len(str_num) < 2:
-        return '0'+str_num
+        return '0' + str_num
     return str_num

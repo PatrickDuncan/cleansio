@@ -3,7 +3,7 @@
 exit_code=0
 
 for file in $(find . -name "*.py"); do
-  if ! pylint $file; then
+  if ! pylint --load-plugins pylint_quotes $file; then
     exit_code=1
   fi
 done
