@@ -41,6 +41,7 @@ python cleansio/cleansio.py <FILE_PATH>
 2. Install the following Python libraries:
     ```
     pip install --upgrade pylint
+    pip install --upgrade pytest
     ```
 
 ### Linting
