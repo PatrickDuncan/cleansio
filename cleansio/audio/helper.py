@@ -5,7 +5,7 @@ from os.path import basename, expanduser
 
 def create_temp_dir():
     """ Create directory to store all temporary files"""
-    create_env_var('CLEANSIO_TEMP_DIR', f"{expanduser('~')}/.cleansio-temp/")
+    create_env_var('CLEANSIO_TEMP_DIR', expanduser('~') + "/.cleansio-temp/")
     os.makedirs(os.environ['CLEANSIO_TEMP_DIR'], exist_ok=True)
     return os.environ['CLEANSIO_TEMP_DIR']
 

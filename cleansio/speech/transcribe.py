@@ -37,4 +37,4 @@ def print_transcription(response, index, length):
     if not response.results:
         return
     result = response.results[0].alternatives[0].transcript
-    print(f"{leading_zero(index)}/{leading_zero(length)}: {result}")
+    print(leading_zero(index) + '/' + leading_zero(length) + ':' + result)
