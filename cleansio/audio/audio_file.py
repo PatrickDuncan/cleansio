@@ -1,5 +1,5 @@
 """ Classifies an audio file """
-
+import sys
 from pydub import AudioSegment
 from .convert import convert
 from .helper import create_temp_dir, create_env_var, file_name_no_ext
@@ -7,7 +7,12 @@ from .helper import create_temp_dir, create_env_var, file_name_no_ext
 class AudioFile:
     """ Classifies an audio file """
     def __init__(self, file_path):
-        self.file_path = convert(file_path)
+        try:
+            self.file_path = convert(file_path)
+        except FileNotFoundError:
+            print('Audio file \'' + str(file_path) + '\' could not be found.' \
+                '\nMake sure the audio file path is correct.')
+            sys.exit(0)
         self.encoding = 'LINEAR16'
         audio_segment = AudioSegment.from_file(self.file_path)
         self.channels = audio_segment.channels
