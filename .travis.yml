@@ -1,4 +1,7 @@
 language: python
+sudo: required
+services:
+  - docker
 python:
   - "3.4"
   - "3.5"
@@ -11,3 +14,8 @@ install:
 script:
   - ./bin/lint
   - ./bin/test
+deploy:
+  provider: script
+  script: bash bin/docker_push
+  on:
+    branch: master
