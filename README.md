@@ -3,6 +3,8 @@
 [![Build Status](https://travis-ci.com/PatrickDuncan/cleansio.svg?token=9iihWUtXPiNNfbJx3N13&branch=master)](https://travis-ci.com/PatrickDuncan/cleansio) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 <img src="assets/logo.png" width="400px" alt="logo">
+<br />
+<img src="assets/poster.png" width="400px" alt="logo">
 
 ## Usage
 ```
