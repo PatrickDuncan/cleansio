@@ -7,3 +7,16 @@ __pycache__/
 
 # Miscellaneous
 *.swp
+
+# Compiled Python files
+*.pyc
+
+# VIM settings
+.vimrc
+
+# Audio files
+*.flac
+*.m4a
+*.mp3
+*.ogg
+*.wav
