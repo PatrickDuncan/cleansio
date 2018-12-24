@@ -2,9 +2,9 @@
 
 [![Build Status](https://travis-ci.com/PatrickDuncan/cleansio.svg?token=9iihWUtXPiNNfbJx3N13&branch=master)](https://travis-ci.com/PatrickDuncan/cleansio) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-<img src="assets/logo.png" width="400px" alt="logo">
+<img src="media/logo.png" width="400px" alt="logo">
 <br />
-<img src="assets/poster.png" width="400px" alt="logo">
+<img src="media/poster.png" width="400px" alt="logo">
 
 ## Usage
 ```
@@ -81,6 +81,6 @@ docker build --tag "cleansio:dev" .
 ## Contributors
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-| [<img src="https://avatars.githubusercontent.com/u/6889074?v=3" width="100px;"/><br /><sub><b>Patrick D. Duncan</b></sub>](https://patrickduncan.co)<br /> [💻](https://github.com/patrickduncan/cleansio/commits?author=patrickduncan) [🚇](https://travis-ci.com/PatrickDuncan/cleansio) 📖 | [<img src="https://avatars.githubusercontent.com/u/11710526?v=3" width="100px;"/><br /><sub><b>Levin Noronha</b></sub>](https://github.com/levin-noro)<br /> [💻](https://github.com/patrickduncan/cleansio/commits?author=levin-noro) | [<img src="https://avatars.githubusercontent.com/u/15528033?v=3" width="100px;"/><br /><sub><b>Corie Bain</b></sub>](https://github.com/c-bain)<br /> [💻](https://github.com/patrickduncan/cleansio/commits?author=c-bain) | [<img src="https://avatars.githubusercontent.com/u/1454713?v=3" width="100px;"/><br /><sub><b>Victor Carri</b></sub>](https://github.com/VictorCarri)<br /> [💻](https://github.com/patrickduncan/cleansio/commits?author=VictorCarri) 📖 | [<img src="https://avatars.githubusercontent.com/u/35604837?v=3" width="100px;"/><br /><sub><b>Richard Caseres</b></sub>](https://github.com/richardbmx)<br />[🎨](https://github.com/PatrickDuncan/cleansio/blob/logo/assets/logo.png) |
+| [<img src="https://avatars.githubusercontent.com/u/6889074?v=3" width="100px;"/><br /><sub><b>Patrick D. Duncan</b></sub>](https://patrickduncan.co)<br /> [💻](https://github.com/patrickduncan/cleansio/commits?author=patrickduncan) [🚇](https://travis-ci.com/PatrickDuncan/cleansio) 📖 | [<img src="https://avatars.githubusercontent.com/u/11710526?v=3" width="100px;"/><br /><sub><b>Levin Noronha</b></sub>](https://github.com/levin-noro)<br /> [💻](https://github.com/patrickduncan/cleansio/commits?author=levin-noro) | [<img src="https://avatars.githubusercontent.com/u/15528033?v=3" width="100px;"/><br /><sub><b>Corie Bain</b></sub>](https://github.com/c-bain)<br /> [💻](https://github.com/patrickduncan/cleansio/commits?author=c-bain) | [<img src="https://avatars.githubusercontent.com/u/1454713?v=3" width="100px;"/><br /><sub><b>Victor Carri</b></sub>](https://github.com/VictorCarri)<br /> [💻](https://github.com/patrickduncan/cleansio/commits?author=VictorCarri) 📖 | [<img src="https://avatars.githubusercontent.com/u/35604837?v=3" width="100px;"/><br /><sub><b>Richard Caseres</b></sub>](https://github.com/richardbmx)<br />[🎨](https://github.com/PatrickDuncan/cleansio/blob/logo/media/logo.png) |
 | :---: | :---: | :---: | :---: | :---: |
 <!-- ALL-CONTRIBUTORS-LIST:END -->
