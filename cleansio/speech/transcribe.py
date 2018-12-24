@@ -8,7 +8,7 @@ def transcribe(audio_file):
     for index, file_path in enumerate(audio_file.slices_file_paths):
         transcribe_each_slice(
             file_path,
-            index + 1, # Humans count start at 1!
+            index + 1, # Humans count starting at 1
             length,
             audio_file.encoding,
             audio_file.sample_rate)
