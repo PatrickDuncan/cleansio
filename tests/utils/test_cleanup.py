@@ -7,7 +7,7 @@ import os
 import pytest
 
 # Function to test
-from cleansio import cleanup
+from utils import cleanup
 
 # Tests the cleanup function
 def test_cleanup():

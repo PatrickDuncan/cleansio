@@ -9,11 +9,11 @@ import sys
 # The arguments are unused - they are only here to satisfy atexit.
 def cleanup(_sig_num=None, _cur_stack_frame=None):
     """ Removes temporary files """
-    remove_temp_file()
-    remove_slices()
-    sys.exit()
+    __remove_temp_file()
+    __remove_slices()
+    sys.exit(0)
 
-def remove_temp_file():
+def __remove_temp_file():
     """ Removes converted WAV file """
 
     if 'CLEANSIO_TEMP_FILE' in environ:
@@ -23,7 +23,7 @@ def remove_temp_file():
         except FileNotFoundError:
             pass
 
-def remove_slices():
+def __remove_slices():
     """ Removes each slice of the converted WAV file """
 
     if 'CLEANSIO_SLICES_LIST' in environ:

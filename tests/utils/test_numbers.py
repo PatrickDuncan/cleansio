@@ -1,6 +1,6 @@
 # pylint: skip-file
 
-from speech.helper import leading_zero
+from utils import leading_zero
 
 def test_leading_zero_empty():
     assert leading_zero('') == ''

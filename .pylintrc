@@ -1,2 +1,2 @@
 [MESSAGES CONTROL]
-disable=fixme,import-error,no-else-return,no-member,too-few-public-methods
+disable=fixme,import-error,no-else-return,no-member,too-few-public-methods,useless-super-delegation

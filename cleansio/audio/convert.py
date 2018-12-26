@@ -3,7 +3,7 @@
 import os
 import time
 from pydub import AudioSegment
-from .helper import create_temp_dir
+from utils import create_temp_dir
 
 def __sample_rate(audio_segment):
     """ GCS requires at least 16 kHz. Either upscale or keep the same. """

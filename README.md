@@ -7,13 +7,21 @@
 <img src="media/poster.png" width="400px" alt="logo">
 
 ## Usage
+
+#### File Mode
 ```
 python cleansio/cleansio.py <FILE_PATH>
+```
+
+#### Real-time Mode
+```
+python cleansio/cleansio.py
 ```
 
 ### Requirements
 
 1. Posix shell
+2. Internet connection
 
 ## Setup
 
@@ -57,6 +65,12 @@ python cleansio/cleansio.py <FILE_PATH>
 **Help**
 ```
 pylint --help-msg=<ID>
+```
+
+### Testing
+
+```
+./bin/test
 ```
 
 ## Docker

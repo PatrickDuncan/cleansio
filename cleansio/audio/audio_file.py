@@ -1,8 +1,8 @@
 """ Classifies an audio file """
 import sys
 from pydub import AudioSegment
+from utils import create_temp_dir, create_env_var, file_name_no_ext
 from .convert import convert
-from .helper import create_temp_dir, create_env_var, file_name_no_ext
 
 class AudioFile:
     """ Classifies an audio file """
@@ -10,9 +10,7 @@ class AudioFile:
         try:
             self.file_path = convert(file_path)
         except FileNotFoundError:
-            print('Audio file \'' + str(file_path) + '\' could not be found.' \
-                '\nMake sure the audio file path is correct.')
-            sys.exit(0)
+            self.__handle_file_not_found(file_path)
         self.encoding = 'LINEAR16'
         audio_segment = AudioSegment.from_file(self.file_path)
         self.channels = audio_segment.channels
@@ -23,9 +21,11 @@ class AudioFile:
     def __create_slices(self, audio_segment, slice_length):
         temp_dir = create_temp_dir()
         slices_file_paths = []
+        # Break up the file into $slice_length ms length WAV audio chunks
         for index, chunk in enumerate(audio_segment[::slice_length]):
             slice_path = self.__create_slice(index, chunk, 'wav', temp_dir)
             slices_file_paths.append(slice_path)
+        # Add the list of chunk filepaths to an ENV variable for post cleanup
         create_env_var('CLEANSIO_SLICES_LIST', str(slices_file_paths))
         return slices_file_paths
 
@@ -35,3 +35,9 @@ class AudioFile:
         with open(file_path, 'wb') as slice_file:
             chunk.export(slice_file, format=extension)
             return slice_file.name
+
+    @classmethod
+    def __handle_file_not_found(cls, file_path):
+        print('Audio file \'' + str(file_path) + '\' could not be found.')
+        print('Make sure the audio file path is correct.')
+        sys.exit(0)

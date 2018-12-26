@@ -1,6 +1,6 @@
 # pylint: skip-file
 
-from audio.helper import file_name_no_ext
+from utils import file_name_no_ext
 
 def test_file_name_no_ext():
     assert file_name_no_ext('/Users/bob/folder/audio.wav') == 'audio'

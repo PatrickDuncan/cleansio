@@ -1,6 +1,6 @@
 """ Convert audio to text """
 
-from .helper import leading_zero
+from utils import leading_zero
 
 def transcribe(audio_file):
     """ Transcribe each slice of the audio file """

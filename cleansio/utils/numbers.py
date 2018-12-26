@@ -1,4 +1,4 @@
-""" Helper Functions for Speech """
+""" Utillity functions for dealing with numbers """
 
 def leading_zero(num):
     """ Adds a leading 0 to single digit numbers. Converts numbers to string """
