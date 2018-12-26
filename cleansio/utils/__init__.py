@@ -1,4 +1,4 @@
-""" Runs after every import """
+""" Makes the directory a package. Acts as a public interface. """
 
 from .cleanup import cleanup
 from .env import create_env_var
