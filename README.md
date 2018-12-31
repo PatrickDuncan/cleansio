@@ -8,14 +8,8 @@
 
 ## Usage
 
-#### File Mode
 ```
-python cleansio/cleansio.py <FILE_PATH>
-```
-
-#### Real-time Mode
-```
-python cleansio/cleansio.py
+python cleansio/cleansio.py --help
 ```
 
 ### Requirements

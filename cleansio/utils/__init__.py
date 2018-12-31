@@ -1,6 +1,7 @@
 """ Makes the directory a package. Acts as a public interface. """
 
-from .cleanup import cleanup
+from .cleanup import cleanup, setup_cleanup
+from .cli import setup_cli_args
 from .env import create_env_var
 from .files import create_temp_dir, file_name_no_ext
 from .numbers import leading_zero

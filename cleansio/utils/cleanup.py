@@ -2,7 +2,9 @@
 
 # environ - To read the environment variables which we use for communication
 # remove  - To remove the temporary files
+from atexit import register
 from os import environ, remove
+from signal import signal, SIGABRT, SIGILL, SIGINT, SIGSEGV, SIGTERM
 import sys
 
 # Cleans up files on normal or abnormal exit
@@ -12,6 +14,14 @@ def cleanup(_sig_num=None, _cur_stack_frame=None):
     __remove_temp_file()
     __remove_slices()
     sys.exit(0)
+
+def setup_cleanup():
+    """ Always call cleanup on any type of exit by creating triggers """
+    # Set the cleanup handler for each signal which we want to catch
+    for sig in (SIGABRT, SIGILL, SIGINT, SIGSEGV, SIGTERM):
+        signal(sig, cleanup)
+    # Register the cleanup function to be called if the program exits normally
+    register(cleanup)
 
 def __remove_temp_file():
     """ Removes converted WAV file """
