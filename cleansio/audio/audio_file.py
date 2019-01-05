@@ -1,4 +1,4 @@
-""" Classifies an audio file """
+""" Classifies an audio file that will be broken up into chunks """
 import sys
 from pydub import AudioSegment
 from utils import create_temp_dir, create_env_var, file_name_no_ext
@@ -14,27 +14,28 @@ class AudioFile:
         self.encoding = 'LINEAR16'
         audio_segment = AudioSegment.from_file(self.file_path)
         self.channels = audio_segment.channels
-        self.sample_rate = audio_segment.frame_rate
-        slice_length = 5000 # time in milliseconds
-        self.slices_file_paths = self.__create_slices(audio_segment, slice_length)
+        self.frame_rate = audio_segment.frame_rate
+        self.chunk_length = 5000 # in milliseconds
+        self.chunks_file_paths = self.__create_chunks(audio_segment)
 
-    def __create_slices(self, audio_segment, slice_length):
+    def __create_chunks(self, audio_segment):
+        """ Breaks up the file into small chunks """
         temp_dir = create_temp_dir()
-        slices_file_paths = []
-        # Break up the file into $slice_length ms length WAV audio chunks
-        for index, chunk in enumerate(audio_segment[::slice_length]):
-            slice_path = self.__create_slice(index, chunk, 'wav', temp_dir)
-            slices_file_paths.append(slice_path)
+        chunks_file_paths = []
+        # Break up the file into $chunk_length ms length WAV audio chunks
+        for index, chunk in enumerate(audio_segment[::self.chunk_length]):
+            chunk_path = self.__create_chunk(index, chunk, 'wav', temp_dir)
+            chunks_file_paths.append(chunk_path)
         # Add the list of chunk filepaths to an ENV variable for post cleanup
-        create_env_var('CLEANSIO_SLICES_LIST', str(slices_file_paths))
-        return slices_file_paths
+        create_env_var('CLEANSIO_CHUNKS_LIST', str(chunks_file_paths))
+        return chunks_file_paths
 
-    def __create_slice(self, index, chunk, extension, temp_dir):
+    def __create_chunk(self, index, chunk, extension, temp_dir):
         file_name = file_name_no_ext(self.file_path)
         file_path = temp_dir + file_name + '-' + str(index) + '.' + extension
-        with open(file_path, 'wb') as slice_file:
-            chunk.export(slice_file, format=extension)
-            return slice_file.name
+        with open(file_path, 'wb') as chunk_file:
+            chunk.export(chunk_file, format=extension)
+            return chunk_file.name
 
     @classmethod
     def __handle_file_not_found(cls, file_path):

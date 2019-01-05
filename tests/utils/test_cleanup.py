@@ -25,22 +25,22 @@ def test_cleanup():
 
     create_temp_file(temp_file)
 
-    ## Slices ##
-    slices_list = [] # Holds names of slice files. Used later on in test.
+    ## Chunks ##
+    chunks_list = [] # Holds names of chunk files. Used later on in test.
 
-    if 'CLEANSIO_SLICES_LIST' in os.environ: # Slices exist
-        slices_list_env_var = os.environ['CLEANSIO_SLICES_LIST']
-        slices_list = slices_list_env_var.split[2:-2].split('\', \'')
-        for slice_file in slices_list:
-            create_temp_file(slice_file)
-    else: # Slices don't exist
-        # Generate a random number of slice files
+    if 'CLEANSIO_CHUNKS_LIST' in os.environ: # Chunks exist
+        chunks_list_env_var = os.environ['CLEANSIO_CHUNKS_LIST']
+        chunks_list = chunks_list_env_var.split[2:-2].split('\', \'')
+        for chunk_file in chunks_list:
+            create_temp_file(chunk_file)
+    else: # Chunks don't exist
+        # Generate a random number of chunk files
         for i in range(0,randint(3, 10)+1):
-            # Choose a random name for the slice which we'll generate
-            temp_slice_name = str(uuid4().hex)
-            create_temp_file(temp_slice_name)
-            slices_list.append(temp_slice_name)
-        os.environ['CLEANSIO_SLICES_LIST'] = str(slices_list)
+            # Choose a random name for the chunk which we'll generate
+            temp_chunk_name = str(uuid4().hex)
+            create_temp_file(temp_chunk_name)
+            chunks_list.append(temp_chunk_name)
+        os.environ['CLEANSIO_CHUNKS_LIST'] = str(chunks_list)
 
     with pytest.raises(SystemExit) as pytest_e: # Ignore sys.exit()
         cleanup() # Run the function
@@ -49,8 +49,8 @@ def test_cleanup():
     # The temporary file shouldn't exist after the cleanup function runs
     assert(not exists(temp_file))
 
-    for slice in slices_list: # None of the "slice files" should exist
-        assert(not exists(slice))
+    for chunk in chunks_list: # None of the "chunk files" should exist
+        assert(not exists(chunk))
 
 def exists(file_name):
     """ Checks whether a file with the given name exists. """

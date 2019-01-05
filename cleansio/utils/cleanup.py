@@ -11,8 +11,8 @@ import sys
 # The arguments are unused - they are only here to satisfy atexit.
 def cleanup(_sig_num=None, _cur_stack_frame=None):
     """ Removes temporary files """
-    __remove_temp_file()
-    __remove_slices()
+    remove_conversions()
+    remove_chunks()
     sys.exit(0)
 
 def setup_cleanup():
@@ -23,7 +23,7 @@ def setup_cleanup():
     # Register the cleanup function to be called if the program exits normally
     register(cleanup)
 
-def __remove_temp_file():
+def remove_conversions():
     """ Removes converted WAV file """
 
     if 'CLEANSIO_TEMP_FILE' in environ:
@@ -33,14 +33,14 @@ def __remove_temp_file():
         except FileNotFoundError:
             pass
 
-def __remove_slices():
-    """ Removes each slice of the converted WAV file """
+def remove_chunks():
+    """ Removes each chunk of the converted WAV file """
 
-    if 'CLEANSIO_SLICES_LIST' in environ:
-        slices_list_env_var = environ['CLEANSIO_SLICES_LIST']
-        slices_list = slices_list_env_var[2:-2].split('\', \'')
-        for slice_file in slices_list:
+    if 'CLEANSIO_CHUNKS_LIST' in environ:
+        slices_list_env_var = environ['CLEANSIO_CHUNKS_LIST']
+        chunks_list = slices_list_env_var[2:-2].split('\', \'')
+        for chunk_file in chunks_list:
             try:
-                remove(slice_file)
+                remove(chunk_file)
             except FileNotFoundError:
                 pass

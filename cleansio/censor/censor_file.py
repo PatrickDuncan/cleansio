@@ -1,7 +1,6 @@
 """ Creates a clean version of a file by removing explicits """
 
 from audio import AudioFile
-from speech import transcribe
 from .censor import Censor
 
 class CensorFile(Censor):
@@ -12,5 +11,7 @@ class CensorFile(Censor):
 
     def censor(self):
         """ Creates a clean/new version of a file by removing explicits """
-        transcribe(AudioFile(self.file_path))
-        # TODO
+        audio_file = AudioFile(self.file_path)
+        # Censor each audio chunk
+        for file_path in audio_file.chunks_file_paths:
+            self.censor_audio_chunk(file_path)
