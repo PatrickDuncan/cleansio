@@ -8,7 +8,7 @@
 
 ## Usage
 
-```
+```sh
 python cleansio/cleansio.py --help
 ```
 
@@ -25,52 +25,44 @@ python cleansio/cleansio.py --help
     - [Anaconda is recommended](https://www.anaconda.com/download/)
 4. Download your Google Cloud Credentials JSON file
 5. Set the following environment variables:
-    ```
+    ```sh
     export GOOGLE_APPLICATION_CREDENTIALS=<PATH_TO_JSON>
     ```
-6. Install the following Python libraries:
+6. Follow these additional steps:
+    - [ffmpeg set-up](https://github.com/jiaaro/pydub#getting-ffmpeg-set-up)
+7. Install Cleansio's dependencies:
+    ```sh
+    pip install -r requirements.txt
     ```
-    pip install --upgrade google-cloud-speech
-    ```
-8. Follow these [**additional steps**](https://github.com/jiaaro/pydub#getting-ffmpeg-set-up) and then install:
-    ```
-    pip install pydub
+8. _(OPTIONAL)_ If you're a developer run:
+    ```sh
+    pip install -r requirements-dev.txt
     ```
 9. _(OPTIONAL)_ Install the [Google Cloud SDK](https://cloud.google.com/sdk/docs/)
 10. You're all set!
 
-## Developer Setup
-
-1. Follow Setup
-2. Install the following Python libraries:
-    ```
-    pip install --upgrade pylint
-    pip install pylint-quotes
-    pip install --upgrade pytest
-    ```
-
 ### Linting
 
 **Run**
-```
+```sh
 ./bin/lint
 ```
 
 **Help**
-```
+```sh
 pylint --help-msg=<ID>
 ```
 
 ### Testing
 
-```
+```sh
 ./bin/test
 ```
 
 ## Docker
 
 **Run**
-```
+```sh
 docker run \
   --tty \
   --rm \
@@ -82,7 +74,7 @@ docker run \
 ```
 
 **Build**
-```
+```sh
 docker build --tag "cleansio:dev" .
 ```
 

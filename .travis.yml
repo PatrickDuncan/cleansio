@@ -7,11 +7,7 @@ python:
   - "3.5"
   - "3.6"
 install:
-  - pip install google-cloud-speech
-  - pip install pydub
-  - pip install pylint
-  - pip install pylint-quotes
-  - pip install pytest
+  - pip install -r requirements.txt -r requirements-dev.txt
 script:
   - ./bin/lint
   - ./bin/test

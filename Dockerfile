@@ -3,7 +3,7 @@ FROM python:3.4
 USER root
 WORKDIR /root
 
-COPY cleansio cleansio
+COPY . cleansio
 
 #===============================================================================
 # Install Libraries
@@ -14,9 +14,9 @@ RUN apt-get update &&  \
   libav-tools          \
   libavcodec-extra
 
-RUN pip install --upgrade \
-  google-cloud-speech     \
-  pydub
+WORKDIR cleansio
+
+RUN pip install -r requirements.txt
 
 #===============================================================================
 # Set Google Speech API
