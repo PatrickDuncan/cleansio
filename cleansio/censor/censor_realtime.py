@@ -4,8 +4,8 @@ from .censor import Censor
 
 class CensorRealtime(Censor):
     """ Filters audio stream in real-time """
-    def __init__(self):
-        super().__init__()
+    def __init__(self, explicits):
+        super().__init__(explicits)
 
     @classmethod
     def censor(cls):

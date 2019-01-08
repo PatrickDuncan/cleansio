@@ -14,6 +14,6 @@ if __name__ == '__main__':
     ARGS = setup_cli_args()
     EXPLICITS = Explicits().set
     if is_file_mode():
-        CensorFile(ARGS.file_path).censor()
+        CensorFile(ARGS.file_path, EXPLICITS).censor()
     else:
-        CensorRealtime().censor()
+        CensorRealtime(EXPLICITS).censor()

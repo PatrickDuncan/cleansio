@@ -5,9 +5,8 @@ from utils import gcs_time_to_ms
 class Timestamp():
     """ Words are located by either assessing silence or by estimatingself.
         Timestamps in the form of {word:, start:, end:} """
-    def __init__(self, file_path, lyrics):
+    def __init__(self, lyrics):
         super().__init__()
-        self.file_path = file_path
         self.lyrics = lyrics
         self.simple_lyrics = self.__parse_simple_lyrics()
         self.timestamps = self.__compute_timestamps()

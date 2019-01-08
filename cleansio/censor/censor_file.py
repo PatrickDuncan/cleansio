@@ -5,13 +5,13 @@ from .censor import Censor
 
 class CensorFile(Censor):
     """ Removes explicits from a file """
-    def __init__(self, file_path):
-        super().__init__()
+    def __init__(self, file_path, explicits):
+        super().__init__(explicits)
         self.file_path = file_path
 
     def censor(self):
         """ Creates a clean/new version of a file by removing explicits """
         audio_file = AudioFile(self.file_path)
-        # Censor each audio chunk
+        # Censor each audio chunk file
         for file_path in audio_file.chunks_file_paths:
             self.censor_audio_chunk(file_path)

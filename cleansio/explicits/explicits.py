@@ -14,7 +14,7 @@ class Explicits():
 
         yaml_content = yaml.load(decrypted_content)
         censored_words_list = yaml_content['explicits']
-        self.set = set(censored_words_list)
+        self.set = set(map(lambda e: e.lower(), censored_words_list))
 
     @classmethod
     def get_explicits_path(cls):
