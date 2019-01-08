@@ -1,6 +1,8 @@
 # Python
 .pytest_cache
 __pycache__/
+*.bak
+.cache/
 
 # Dev files
 *.swp

@@ -1,7 +1,5 @@
 """ Displays the lyrics of an audio file """
 
-# Standard imports
-import sys
 # Imports from our modules
 from censor import CensorFile, CensorRealtime
 from utils import setup_cleanup, setup_cli_args
@@ -16,6 +14,6 @@ if __name__ == '__main__':
     ARGS = setup_cli_args()
     EXPLICITS = Explicits().set
     if is_file_mode():
-        CensorFile(sys.argv[1]).censor()
+        CensorFile(ARGS.file_path).censor()
     else:
         CensorRealtime().censor()
