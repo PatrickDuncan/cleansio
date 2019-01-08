@@ -12,5 +12,6 @@ class FileLoader():
         # Create the set which stores words
         self.set = {}
         with open(filename, 'r') as uel:
-            # Assume that the words are separated by sep and split the file into a set
-            self.set = set(uel.read().split(sep))
+            # Assume that the words are separated by sep
+            word_list = uel.read().strip().split(sep)
+            self.set = set(filter(lambda x: x != '', word_list)) # Remove ''

@@ -12,7 +12,7 @@ def is_file_mode():
 if __name__ == '__main__':
     setup_cleanup()
     ARGS = setup_cli_args()
-    EXPLICITS = Explicits().set
+    EXPLICITS = Explicits(ARGS).set
     if is_file_mode():
         CensorFile(ARGS.file_path, EXPLICITS).censor()
     else:

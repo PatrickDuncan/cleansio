@@ -20,6 +20,7 @@ def test_newline(tmpdir):
     fl = FileLoader(str(tmp_path))
     # The array which we read from the file should be the same as the array which we wrote
     assert fl.set == correct_arr
+    assert '' not in fl.set
 
 # Nonexistent file given - exception expected
 # tmp_path - A temporary directory path, supplied by pytest
