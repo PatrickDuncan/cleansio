@@ -1,4 +1,6 @@
+colorama>=0.4.1
 google-cloud-speech>=0.36.1
 pycrypto>=2.6.1
 pydub>=0.23.0
 pyyaml>=3.13
+tqdm>=4.29.0

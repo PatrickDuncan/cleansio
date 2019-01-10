@@ -14,9 +14,10 @@ class Censor():
         audio_segment = AudioSegment.from_file(file_path)
         lyrics = self.__get_lyrics(file_path, audio_segment)
         timestamps = self.__get_timestamps(lyrics)
-        print(timestamps)
         if timestamps:
             self.__mute_explicits(file_path, audio_segment, timestamps)
+        # Return a new AudioSegment object because the file may have changed
+        return AudioSegment.from_file(file_path)
 
     def __mute_explicits(self, file_path, audio_segment, timestamps):
         # Go through each word, if its an explicit, mute the duration
@@ -24,7 +25,6 @@ class Censor():
         for stamp in timestamps:
             if stamp['word'].lower() in self.explicits: # Explicit found, mute
                 audio_segment = self.__mute_explicit(audio_segment, stamp)
-                print('Muted:', stamp['word'])
                 muted = True
         if muted:
             # Overwrite the chunk with the mute
