@@ -1,5 +1,7 @@
 """ Creates a clean version of a file by removing explicits """
 
+from itertools import repeat
+from multiprocessing.dummy import Pool as ThreadPool
 from pathlib import Path
 from colorama import Fore
 from tqdm import tqdm
@@ -17,13 +19,24 @@ class CensorFile(Censor):
         """ Creates a clean/new version of a file by removing explicits """
         clean_file = AudioSegment.empty()
         audio_file = AudioFile(self.file_path)
+        # Define the CLI progress bar
         p_bar, p_bar_step = self.__progress_bar(audio_file.chunks_file_paths)
-        # Censor each audio chunk file
-        for file_path in audio_file.chunks_file_paths:
-            clean_file += self.censor_audio_chunk(file_path)
-            p_bar.update(p_bar_step)
+        async_iter = zip(
+            repeat(p_bar),
+            repeat(p_bar_step),
+            audio_file.chunks_file_paths)
+        # Censor each audio chunk file asynchronously
+        censored_chunks = ThreadPool(8).map(self.__censor_chunk, async_iter)
+        for chunk in censored_chunks: # Join the chunks together
+            clean_file += chunk
         p_bar.close()
         self.__create_clean_file(clean_file)
+
+    def __censor_chunk(self, async_iter):
+        """ Censors a chunk and updates the progress bar """
+        p_bar, p_bar_step, chunk_file_paths = async_iter
+        p_bar.update(p_bar_step)
+        return self.censor_audio_chunk(chunk_file_paths)
 
     @classmethod
     def __create_clean_file(cls, clean_file, encoding='wav'):
