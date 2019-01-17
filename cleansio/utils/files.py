@@ -19,3 +19,11 @@ def create_temp_dir():
 def file_name_no_ext(file_path):
     """ Get a file name with no extension from a file path """
     return ''.join(basename(file_path).split('.')[:-1])
+
+def current_dir():
+    """ The utils directory path """
+    return os.path.dirname(__file__)
+
+def relative_path(path):
+    """ Path relative to the utils directory """
+    return os.path.join(current_dir(), path)

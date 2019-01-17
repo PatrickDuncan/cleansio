@@ -1,8 +1,8 @@
 """ Loads list of explicits from an encrypted file """
 
-import os
 from Crypto.Cipher import AES
 import yaml
+from utils import relative_path
 from .file_loader import FileLoader
 
 class Explicits():
@@ -37,8 +37,7 @@ class Explicits():
     @classmethod
     def __get_explicits_path(cls):
         """ Return path of encrypted explicits file """
-        current_path = os.path.dirname(__file__)
-        path_to_enc_file = os.path.join(current_path, '../data/explicits-list')
+        path_to_enc_file = relative_path('../data/explicits-list')
         return path_to_enc_file
 
     @classmethod
