@@ -6,7 +6,7 @@ class Transcribe():
     """ Transcribes the lyrics from the vocals """
     def __init__(self, file_path, frame_rate, encoding='LINEAR16'):
         super().__init__()
-        self.file_path = file_path
+        self.file_path = file_path + '-accuracy'
         self.lyrics = self.__transcribe_chunk(encoding, frame_rate)
 
     def __transcribe_chunk(self, frame_rate, encoding):

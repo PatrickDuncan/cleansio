@@ -32,7 +32,11 @@ class AudioFile:
 
     def __create_chunk(self, index, chunk, extension, temp_dir):
         file_name = file_name_no_ext(self.file_path)
-        file_path = temp_dir + file_name + '-' + str(index) + '.' + extension
+        file_path = temp_dir + file_name + '-' + str(index)
+        # Chunk that will be modified for accuracy's sake
+        with open(file_path + '-accuracy', 'wb') as chunk_file:
+            chunk.export(chunk_file, format=extension)
+        # Chunk that will be censored and preserve audio quality
         with open(file_path, 'wb') as chunk_file:
             chunk.export(chunk_file, format=extension)
             return chunk_file.name

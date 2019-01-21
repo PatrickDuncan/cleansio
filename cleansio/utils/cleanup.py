@@ -41,6 +41,10 @@ def remove_chunks():
         chunks_list = slices_list_env_var[2:-2].split('\', \'')
         for chunk_file in chunks_list:
             try:
+                remove(chunk_file + '-accuracy')
+            except FileNotFoundError:
+                pass
+            try:
                 remove(chunk_file)
             except FileNotFoundError:
                 pass
