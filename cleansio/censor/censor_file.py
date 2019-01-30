@@ -22,13 +22,13 @@ class CensorFile(Censor):
         clean_file = AudioSegment.empty()
         audio_file = AudioFile(self.file_path)
         # Define the CLI progress bar
-        p_bar, p_bar_step = self.__progress_bar(audio_file.chunks_file_paths)
+        p_bar, p_bar_step = self.__progress_bar(audio_file.normal_chunks)
         async_iter = zip(
             repeat(p_bar),
             repeat(p_bar_step),
-            audio_file.chunks_file_paths)
+            audio_file.normal_chunks)
         # Censor each audio chunk file asynchronously
-        censored_chunks = ThreadPool(8).map(self.__censor_chunk, async_iter)
+        censored_chunks = ThreadPool(6).map(self.__censor_chunk, async_iter)
         for chunk in censored_chunks: # Join the chunks together
             clean_file += chunk
         p_bar.close()
@@ -36,9 +36,9 @@ class CensorFile(Censor):
 
     def __censor_chunk(self, async_iter):
         """ Censors a chunk and updates the progress bar """
-        p_bar, p_bar_step, chunk_file_paths = async_iter
+        p_bar, p_bar_step, chunk_file_path = async_iter
         p_bar.update(p_bar_step)
-        return self.censor_audio_chunk(chunk_file_paths)
+        return self.censor_audio_chunk(chunk_file_path)
 
     def __create_clean_file(self, clean_file):
         clean_file.export(self.location, format=self.encoding)
@@ -52,7 +52,7 @@ class CensorFile(Censor):
         return current_dir + '/clean_file.' + self.encoding
 
     @classmethod
-    def __progress_bar(cls, chunks_file_paths):
+    def __progress_bar(cls, normal_chunks):
         progress_bar_total = 100
         progress_bar = tqdm(
             bar_format='{l_bar}{bar}', # Remove the detailed percentage stats
@@ -60,7 +60,7 @@ class CensorFile(Censor):
             leave=False,               # Remove bar after completion
             ncols=40,                  # Set width
             total=progress_bar_total)
-        progress_bar_step = (1 / len(chunks_file_paths)) * progress_bar_total
+        progress_bar_step = (1 / len(normal_chunks)) * progress_bar_total
         return progress_bar, progress_bar_step
 
     @classmethod

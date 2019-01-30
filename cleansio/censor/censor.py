@@ -20,23 +20,25 @@ class Censor():
         return AudioSegment.from_file(file_path)
 
     def __mute_explicits(self, file_path, audio_segment, timestamps):
-        # Go through each word, if its an explicit, mute the duration
+        """ Go through each word, if its an explicit, mute the duration """
         muted = False
         for stamp in timestamps:
             if stamp['word'].lower() in self.explicits: # Explicit found, mute
                 audio_segment = self.__mute_explicit(audio_segment, stamp)
                 muted = True
         if muted:
-            # Overwrite the chunk with the mute
+            # Overwrite the chunk with the mute(s)
             audio_segment.export(file_path, format='wav')
 
     @classmethod
     def __mute_explicit(cls, audio_segment, timestamp):
+        len_as = len(audio_segment)
+        # Check if the timestamp is outside of this chunk (from overlapping)
+        if timestamp['start'] > len_as:
+            return audio_segment
         beginning = audio_segment[:timestamp['start']]
         duration = timestamp['end'] - timestamp['start']
         mute = AudioSegment.silent(duration=duration)
-        # Using % length to ensure the slicing is not out of bounds
-        len_as = len(audio_segment)
         # The end of the timestamp cannot be longer than the file
         end_length = len_as if len_as < timestamp['end'] else timestamp['end']
         end = audio_segment[end_length:]

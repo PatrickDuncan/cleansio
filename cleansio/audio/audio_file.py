@@ -1,6 +1,9 @@
 """ Classifies an audio file that will be broken up into chunks """
+
 import sys
+from textwrap import dedent
 from pydub import AudioSegment
+from colorama import Fore
 from utils import create_temp_dir, create_env_var, file_name_no_ext
 from .convert import convert
 
@@ -15,24 +18,39 @@ class AudioFile:
         audio_segment = AudioSegment.from_file(self.file_path)
         self.channels = audio_segment.channels
         self.frame_rate = audio_segment.frame_rate
-        self.chunk_length = 5000 # in milliseconds
-        self.chunks_file_paths = self.__create_chunks(audio_segment)
+        self.chunk_length = 5000 # In milliseconds
+        self.normal_chunks, self.overlapping_chunks = \
+            self.__init_create_chunks(audio_segment)
 
-    def __create_chunks(self, audio_segment):
+    def __init_create_chunks(self, audio_segment):
         """ Breaks up the file into small chunks """
         temp_dir = create_temp_dir()
-        chunks_file_paths = []
-        # Break up the file into $chunk_length ms length WAV audio chunks
-        for index, chunk in enumerate(audio_segment[::self.chunk_length]):
-            chunk_path = self.__create_chunk(index, chunk, 'wav', temp_dir)
-            chunks_file_paths.append(chunk_path)
+        normal_chunks = []
+        overlapping_chunks = []
+        # Create normal and overlapping chunks
+        self.__create_chunks(audio_segment, temp_dir, normal_chunks, False)
+        self.__create_chunks(audio_segment, temp_dir, overlapping_chunks, True)
         # Add the list of chunk filepaths to an ENV variable for post cleanup
-        create_env_var('CLEANSIO_CHUNKS_LIST', str(chunks_file_paths))
-        return chunks_file_paths
+        create_env_var(
+            'CLEANSIO_CHUNKS_LIST', str(normal_chunks + overlapping_chunks))
+        return normal_chunks, overlapping_chunks
 
-    def __create_chunk(self, index, chunk, extension, temp_dir):
+    def __create_chunks(self, audio_segment, temp_dir, chunks_arr, overlapping):
+        start = 2500 if overlapping else 0
+        chunks = audio_segment[start::self.chunk_length]
+        for index, chunk in enumerate(chunks):
+            chunk_path = self.__create_chunk(
+                index, chunk, 'wav', temp_dir, overlapping)
+            chunks_arr.append(chunk_path)
+        # Fix for when the last chunk isn't long enough to support overlapping
+        self.__last_overlapping_chunk(
+            audio_segment, temp_dir, chunks_arr, overlapping)
+
+    def __create_chunk(self, index, chunk, extension, temp_dir, overlapping):
         file_name = file_name_no_ext(self.file_path)
         file_path = temp_dir + file_name + '-' + str(index)
+        if overlapping:
+            file_path += '-overlapping'
         # Chunk that will be modified for accuracy's sake
         with open(file_path + '-accuracy', 'wb') as chunk_file:
             chunk.export(chunk_file, format=extension)
@@ -41,8 +59,20 @@ class AudioFile:
             chunk.export(chunk_file, format=extension)
             return chunk_file.name
 
+    def __last_overlapping_chunk(
+            self, audio_segment, temp_dir, chunks_arr, overlapping):
+        """ Check if the chunk is long enough to support overlapping """
+        if overlapping and len(audio_segment) % self.chunk_length < 4000:
+            chunk_path = self.__create_chunk(
+                len(audio_segment) // self.chunk_length, # Last index
+                AudioSegment.silent(frame_rate=44100),   # Silent chunk
+                'wav', temp_dir, overlapping)
+            chunks_arr.append(chunk_path)
+
     @classmethod
     def __handle_file_not_found(cls, file_path):
-        print('Audio file \'' + str(file_path) + '\' could not be found.')
-        print('Make sure the audio file path is correct.')
+        print(dedent('''\
+            {0}Audio file '{1}{2}{0}' could not be found
+            Make sure the audio file path is correct.\
+        '''.format(Fore.RED, Fore.YELLOW, str(file_path))))
         sys.exit(0)
