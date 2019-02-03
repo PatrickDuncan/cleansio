@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# Generate the documentation files
+find docs -name '*.rst' ! -name 'index.rst' -type f -exec rm -f {} +
+sphinx-apidoc -o docs cleansio
+(cd docs && make html)

@@ -1,8 +1,9 @@
 # Cleansio
 
-[![Build Status](https://travis-ci.com/PatrickDuncan/cleansio.svg?token=9iihWUtXPiNNfbJx3N13&branch=master)](https://travis-ci.com/PatrickDuncan/cleansio) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://travis-ci.com/PatrickDuncan/cleansio.svg?token=9iihWUtXPiNNfbJx3N13&branch=master)](https://travis-ci.com/PatrickDuncan/cleansio) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Documentation Status](https://readthedocs.org/projects/cleansio/badge/?version=latest)](https://cleansio.readthedocs.io/en/latest/?badge=latest)
 
-<img src="media/poster.png" width="400px" alt="poster">
+
+<img src="media/logo.png" width="200px" alt="logo">
 
 ## Usage
 
@@ -38,6 +39,17 @@ python cleansio/cleansio.py --help
     ```
 9. _(OPTIONAL)_ Install the [Google Cloud SDK](https://cloud.google.com/sdk/docs/)
 10. You're all set!
+
+## Documentation
+
+[Technical Documentation](https://patrickdduncan.com/cleansio)
+
+[Slideshow](https://patrickdduncan.com/clenasio-slideshow)
+
+**Build Locally.** Available at _docs/\_build/html/index.html_
+```sh
+./bin/generate_docs
+```
 
 ### Linting
 

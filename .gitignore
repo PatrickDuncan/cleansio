@@ -4,11 +4,11 @@ __pycache__/
 *.bak
 .cache/
 
-# Dev files
-*.swp
-
 # Miscellaneous
 *.swp
+docs/_build
+docs/*.rst
+!docs/index.rst
 
 # Compiled Python files
 *.pyc

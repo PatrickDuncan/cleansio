@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Underscores break GitHub Pages URLs. Remove them from folder/file identifiers.
+for file in $(find docs/_build/html -name "*_*" | sort -r); do
+  dir=$(dirname "$file")
+  mv "$file" "$dir/$(basename "$file" | tr -d _)"
+done
+
+# Remove underscores from the HTML files
+# TODO: Turn into 1 sed call
+sed -i 's/\(href[ ]*=[ ]*".*\)_/\1/g' docs/_build/html/*.html
+sed -i 's/\(href[ ]*=[ ]*".*\)_/\1/g' docs/_build/html/*.html
+sed -i 's/\(src[ ]*=[ ]*".*\)_/\1/g' docs/_build/html/*.html
+sed -i 's/\(src[ ]*=[ ]*".*\)_/\1/g' docs/_build/html/*.html
