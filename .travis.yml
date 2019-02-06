@@ -7,6 +7,8 @@ python:
   - "3.5"
   - "3.6"
 install:
+  # Needed for the UML diagrams
+  - sudo apt-get install graphviz
   - pip install -r requirements.txt -r requirements-dev.txt
 script:
   - ./bin/lint

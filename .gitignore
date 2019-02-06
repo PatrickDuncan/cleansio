@@ -6,9 +6,13 @@ __pycache__/
 
 # Miscellaneous
 *.swp
+
+# Documentation
 docs/_build
 docs/*.rst
 !docs/index.rst
+docs/_static/classes.png
+docs/_static/packages.png
 
 # Compiled Python files
 *.pyc

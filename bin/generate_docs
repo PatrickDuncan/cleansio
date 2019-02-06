@@ -1,5 +1,11 @@
 #!/bin/sh
 
+echo 'WARNING: This will take a long time'
+echo
+# Generate the class and package diagrams
+(cd cleansio && pyreverse -o png */*.py)
+mv cleansio/classes.png cleansio/packages.png docs/_static
+
 # Generate the documentation files
 find docs -name '*.rst' ! -name 'index.rst' -type f -exec rm -f {} +
 sphinx-apidoc -o docs cleansio
