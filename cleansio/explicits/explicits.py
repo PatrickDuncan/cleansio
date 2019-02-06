@@ -3,7 +3,7 @@
 from Crypto.Cipher import AES
 import yaml
 from utils import relative_path
-from .file_loader import FileLoader
+from .user_explicits import UserExplicits
 
 class Explicits():
     """ Object representing set of explicits"""
@@ -32,7 +32,7 @@ class Explicits():
 
     @classmethod
     def __user_set(cls, user_list):
-        return FileLoader(user_list).set
+        return UserExplicits(user_list).set
 
     @classmethod
     def __get_explicits_path(cls):

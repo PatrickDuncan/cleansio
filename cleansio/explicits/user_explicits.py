@@ -3,7 +3,7 @@
     It is assumed that the words are separated by the given separator.
 """
 
-class FileLoader():
+class UserExplicits():
     """
         Loads a list of words from a file.
         It is assumed that the words are separated by the given separator.
