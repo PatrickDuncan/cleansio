@@ -9,6 +9,8 @@ python:
 install:
   # Needed for the UML diagrams
   - sudo apt-get install graphviz
+  # Python 3.4 image doesn't have llvm
+  - ./bin/.travis_llvm_fix
   - pip install -r requirements.txt -r requirements-dev.txt
 script:
   - ./bin/lint

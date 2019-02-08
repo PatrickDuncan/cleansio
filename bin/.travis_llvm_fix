@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# http://apt.llvm.org/
+if [ $TRAVIS_PYTHON_VERSION = "3.4" ]; then
+  deb-src http://apt.llvm.org/trusty/ llvm-toolchain-trusty-7 main
+  wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
+  sudo apt-get update
+  sudo apt-get install clang-7 \
+                  lldb-7  \
+                  lld-7
+  # LLVM
+  sudo apt-get install libllvm-7-ocaml-dev \
+                  libllvm7            \
+                  llvm-7              \
+                  llvm-7-dev          \
+                  llvm-7-doc          \
+                  llvm-7-examples     \
+                  llvm-7-runtime
+fi

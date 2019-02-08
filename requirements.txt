@@ -4,3 +4,4 @@ pycrypto>=2.6.1
 pydub>=0.23.0
 pyyaml>=3.13
 tqdm>=4.29.0
+librosa>=0.6.2
