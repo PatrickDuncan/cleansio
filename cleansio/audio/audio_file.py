@@ -5,6 +5,7 @@ from textwrap import dedent
 from pydub import AudioSegment
 from colorama import Fore
 from utils import create_temp_dir, create_env_var, file_name_no_ext
+from .accuracy import improve_accuracy
 from .convert import convert
 
 class AudioFile:
@@ -53,7 +54,8 @@ class AudioFile:
             file_path += '-overlapping'
         # Chunk that will be modified for accuracy's sake
         with open(file_path + '-accuracy', 'wb') as chunk_file:
-            chunk.export(chunk_file, format=extension)
+            accuracy_chunk = improve_accuracy(chunk)
+            accuracy_chunk.export(chunk_file, format=extension)
         # Chunk that will be censored and preserve audio quality
         with open(file_path, 'wb') as chunk_file:
             chunk.export(chunk_file, format=extension)
