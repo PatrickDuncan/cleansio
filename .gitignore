@@ -66,3 +66,6 @@ docs/_static/packages.png
 *.u8
 *.voc
 *.wav
+
+# Test audio file
+!tests/data/testing.wav

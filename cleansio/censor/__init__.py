@@ -2,3 +2,4 @@
 
 from .censor_file import CensorFile
 from .censor_realtime import CensorRealtime
+from .censor import Censor
