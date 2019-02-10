@@ -4,6 +4,8 @@ from itertools import repeat
 from multiprocessing.dummy import Pool as ThreadPool
 from google.cloud.speech import enums, SpeechClient, types
 from utils import append_before_ext
+from pydub import AudioSegment
+from audio import improve_accuracy
 
 class Transcribe():
     """ Transcribes the lyrics from the vocals """
@@ -20,8 +22,10 @@ class Transcribe():
     def __transcribe_chunk(self, async_iter):
         """ Accesses Google Cloud Speech and print the lyrics for each chunk """
         frame_rate, encoding, file_path = async_iter
-        accuracy_chunk_path = append_before_ext(file_path, '-accuracy')
-        with open(accuracy_chunk_path, 'rb') as audio_content:
+        accuracy_path = append_before_ext(file_path, '-accuracy')
+        accuracy_chunk = AudioSegment.from_file(accuracy_path)
+        improve_accuracy(accuracy_chunk, accuracy_path)
+        with open(accuracy_path, 'rb') as audio_content:
             content = audio_content.read()
         config = self.__get_config(encoding, frame_rate)
         audio = types.RecognitionAudio(content=content)
