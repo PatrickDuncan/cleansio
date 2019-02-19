@@ -56,6 +56,8 @@ class AudioFile:
         with open(file_path + '-accuracy', 'wb') as chunk_file:
             accuracy_chunk = improve_accuracy(chunk)
             accuracy_chunk.export(chunk_file, format=extension)
+            if overlapping: # The normal overlapping chunk is not needed
+                return chunk_file.name
         # Chunk that will be censored and preserve audio quality
         with open(file_path, 'wb') as chunk_file:
             chunk.export(chunk_file, format=extension)
