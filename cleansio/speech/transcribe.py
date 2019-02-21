@@ -3,9 +3,9 @@
 from itertools import repeat
 from multiprocessing.dummy import Pool as ThreadPool
 from google.cloud.speech import enums, SpeechClient, types
-from utils import append_before_ext
 from pydub import AudioSegment
 from audio import improve_accuracy
+from utils import append_before_ext
 
 class Transcribe():
     """ Transcribes the lyrics from the vocals """
