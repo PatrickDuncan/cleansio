@@ -17,6 +17,9 @@ class Transcribe():
         file_paths = [file_path, append_before_ext(file_path, '-overlapping')]
         async_iter = zip(repeat(frame_rate), repeat(encoding), file_paths)
         transcripts = ThreadPool(2).map(self.__transcribe_chunk, async_iter)
+        if '-0' in file_path and self.__combine_transcripts(transcripts) != None:
+            for word in self.__combine_transcripts(transcripts):
+                pass#print(word)
         return self.__combine_transcripts(transcripts)
 
     def __transcribe_chunk(self, async_iter):
@@ -48,6 +51,7 @@ class Transcribe():
         words = []
         if transcripts[0].results: # Normal chunk
             words += transcripts[0].results[0].alternatives[0].words
+            print(words)
         if transcripts[1].results: # Overlapping chunk
             overlapping = transcripts[1].results[0].alternatives[0].words
             shifted_time = list(map(cls.__shift_time, overlapping))
@@ -57,8 +61,12 @@ class Transcribe():
     @classmethod
     def __shift_time(cls, word):
         """ Increment the time relative to the normal chunk """
-        word.start_time.seconds += 2
-        word.start_time.nanos += 500000000
-        word.end_time.seconds += 2
-        word.end_time.nanos += 500000000
+        nano = int(10e8)
+        # secs_in_nanos accounts for nano going above 1 second
+        secs_in_nanos = word.start_time.nanos // nano
+        word.start_time.seconds += 2 + secs_in_nanos
+        word.start_time.nanos += (-secs_in_nanos * nano) + 500000000
+        secs_in_nanos = word.end_time.nanos // nano
+        word.end_time.seconds += 2 + secs_in_nanos
+        word.end_time.nanos += (-secs_in_nanos * nano) + 500000000
         return word
