@@ -19,9 +19,6 @@ def __magnitude_filter(magnitude, sampling_rate):
 def __vocal_mask(magnitude, mag_filter):
     margin = 2 # Reduce bleed between the vocals masks
     power = 3  # Soft mask computed in a numerically stable way
-    print(magnitude - mag_filter)
-    print(margin * mag_filter)
-    print("===================================================================")
     return librosa.util.softmask(
         magnitude - mag_filter, margin * mag_filter, power=power)
 
@@ -57,7 +54,8 @@ def improve_accuracy(chunk, chunk_path):
     """ Filter chunk through various functions to improve speech recognition """
     accuracy_chunk = __isolate_vocals(chunk, chunk_path)
     # Maximize after isolating the vocals to ensure instruments do not lower the
-    # potency of the increase
+    #  potency of the increase
+    accuracy_chunk = AudioSegment.low_pass_filter(accuracy_chunk, 5000)
     accuracy_chunk = __maximize_volume(accuracy_chunk)
     convert_file(accuracy_chunk, 'wav', chunk_path)
     return accuracy_chunk

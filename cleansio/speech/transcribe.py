@@ -17,9 +17,6 @@ class Transcribe():
         file_paths = [file_path, append_before_ext(file_path, '-overlapping')]
         async_iter = zip(repeat(frame_rate), repeat(encoding), file_paths)
         transcripts = ThreadPool(2).map(self.__transcribe_chunk, async_iter)
-        if '-0' in file_path and self.__combine_transcripts(transcripts) != None:
-            for word in self.__combine_transcripts(transcripts):
-                pass#print(word)
         return self.__combine_transcripts(transcripts)
 
     def __transcribe_chunk(self, async_iter):
@@ -51,7 +48,6 @@ class Transcribe():
         words = []
         if transcripts[0].results: # Normal chunk
             words += transcripts[0].results[0].alternatives[0].words
-            print(words)
         if transcripts[1].results: # Overlapping chunk
             overlapping = transcripts[1].results[0].alternatives[0].words
             shifted_time = list(map(cls.__shift_time, overlapping))
