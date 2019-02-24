@@ -6,6 +6,7 @@ from atexit import register
 from os import environ, remove
 from signal import signal, SIGABRT, SIGILL, SIGINT, SIGSEGV, SIGTERM
 import sys
+from .files import append_before_ext
 
 # Cleans up files on normal or abnormal exit
 # The arguments are unused - they are only here to satisfy atexit.
@@ -41,7 +42,7 @@ def remove_chunks():
         chunks_list = slices_list_env_var[2:-2].split('\', \'')
         for chunk_file in chunks_list:
             try:
-                remove(chunk_file + '-accuracy')
+                remove(append_before_ext(chunk_file, '-accuracy'))
             except FileNotFoundError:
                 pass
             try:

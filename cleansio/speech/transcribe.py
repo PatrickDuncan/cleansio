@@ -3,6 +3,7 @@
 from itertools import repeat
 from multiprocessing.dummy import Pool as ThreadPool
 from google.cloud.speech import enums, SpeechClient, types
+from utils import append_before_ext
 
 class Transcribe():
     """ Transcribes the lyrics from the vocals """
@@ -11,7 +12,7 @@ class Transcribe():
         self.lyrics = self.__transcribe_chunks(encoding, frame_rate, file_path)
 
     def __transcribe_chunks(self, frame_rate, encoding, file_path):
-        file_paths = [file_path, file_path + '-overlapping']
+        file_paths = [file_path, append_before_ext(file_path, '-overlapping')]
         async_iter = zip(repeat(frame_rate), repeat(encoding), file_paths)
         transcripts = ThreadPool(2).map(self.__transcribe_chunk, async_iter)
         return self.__combine_transcripts(transcripts)
@@ -19,7 +20,8 @@ class Transcribe():
     def __transcribe_chunk(self, async_iter):
         """ Accesses Google Cloud Speech and print the lyrics for each chunk """
         frame_rate, encoding, file_path = async_iter
-        with open(file_path + '-accuracy', 'rb') as audio_content:
+        accuracy_chunk_path = append_before_ext(file_path, '-accuracy')
+        with open(accuracy_chunk_path, 'rb') as audio_content:
             content = audio_content.read()
         config = self.__get_config(encoding, frame_rate)
         audio = types.RecognitionAudio(content=content)

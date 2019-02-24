@@ -4,7 +4,8 @@ import sys
 from textwrap import dedent
 from pydub import AudioSegment
 from colorama import Fore
-from utils import create_temp_dir, create_env_var, file_name_no_ext
+from utils import create_temp_dir, create_env_var, file_name_no_ext, \
+    append_before_ext
 from .accuracy import improve_accuracy
 from .convert import convert
 
@@ -49,11 +50,12 @@ class AudioFile:
 
     def __create_chunk(self, index, chunk, extension, temp_dir, overlapping):
         file_name = file_name_no_ext(self.file_path)
-        file_path = temp_dir + file_name + '-' + str(index)
+        file_path = temp_dir + file_name + '-' + str(index) + '.' + extension
         if overlapping:
-            file_path += '-overlapping'
+            file_path = append_before_ext(file_path, '-overlapping')
         # Chunk that will be modified for accuracy's sake
-        with open(file_path + '-accuracy', 'wb') as chunk_file:
+        accuracy_path = append_before_ext(file_path, '-accuracy')
+        with open(accuracy_path, 'wb') as chunk_file:
             accuracy_chunk = improve_accuracy(chunk)
             accuracy_chunk.export(chunk_file, format=extension)
             if overlapping: # The normal overlapping chunk is not needed

@@ -27,3 +27,10 @@ def current_dir():
 def relative_path(path):
     """ Path relative to the utils directory """
     return os.path.join(current_dir(), path)
+
+def append_before_ext(path, addition):
+    """ Add a string between the file descriptor and the extension """
+    dot_index = path.rfind('.')
+    if dot_index == -1: # . Not found
+        return path + addition
+    return path[:dot_index] + addition + path[dot_index:]
