@@ -1,3 +1,5 @@
+""" Retrieves key input on macOS and Windows """
+
 import time
 from threading import Thread
 
@@ -17,6 +19,7 @@ except ImportError as error:
     import termios
 
 class KeyPoller():
+    """ Retrieves key input on macOS and Windows """
     def __enter__(self):
         global IS_WINDOWS
         if IS_WINDOWS:
@@ -30,23 +33,22 @@ class KeyPoller():
             self.captured_chars = []
         else:
             # Save the terminal settings
-            self.fd = sys.stdin.fileno()
-            self.new_term = termios.tcgetattr(self.fd)
-            self.old_term = termios.tcgetattr(self.fd)
+            self.fileno = sys.stdin.fileno()
+            self.new_term = termios.tcgetattr(self.fileno)
+            self.old_term = termios.tcgetattr(self.fileno)
 
             # New terminal setting unbuffered
             self.new_term[3] = (self.new_term[3] & ~termios.ICANON & ~termios.ECHO)
-            termios.tcsetattr(self.fd, termios.TCSAFLUSH, self.new_term)
+            termios.tcsetattr(self.fileno, termios.TCSAFLUSH, self.new_term)
 
         return self
 
-    def __exit__(self, type, value, traceback):
-        if IS_WINDOWS:
-            pass
-        else:
-            termios.tcsetattr(self.fd, termios.TCSAFLUSH, self.old_term)
+    def __exit__(self, _, value, traceback):
+        if not IS_WINDOWS:
+            termios.tcsetattr(self.fileno, termios.TCSAFLUSH, self.old_term)
 
     def poll(self):
+        """ Returns the pressed key or Null """
         if IS_WINDOWS:
             if not len(self.captured_chars) == 0:
                 return self.captured_chars.pop(0)
@@ -57,13 +59,13 @@ class KeyPoller():
                 return None
 
             if not len(events_peek) == self.cur_event_length:
-                for curEvent in events_peek[self.cur_event_length:]:
-                    if curEvent.EventType == KEY_EVENT:
-                        if ord(curEvent.Char) == 0 or not curEvent.KeyDown:
+                for cur_event in events_peek[self.cur_event_length:]:
+                    if cur_event.EventType == KEY_EVENT:
+                        if ord(cur_event.Char) == 0 or not cur_event.KeyDown:
                             pass
                         else:
-                            curChar = str(curEvent.Char)
-                            self.captured_chars.append(curChar)
+                            cur_char = str(cur_event.Char)
+                            self.captured_chars.append(cur_char)
                 self.cur_event_length = len(events_peek)
 
             if not len(self.captured_chars) == 0:
@@ -71,7 +73,7 @@ class KeyPoller():
             else:
                 return None
         else:
-            dr, dw, de = select.select([sys.stdin], [], [], 0)
+            dr, _, _ = select.select([sys.stdin], [], [], 0)
             if not dr == []:
                 return sys.stdin.read(1)
             return None
@@ -79,8 +81,7 @@ class KeyPoller():
 def key():
     with KeyPoller() as key_poller:
         while True:
-            c = key_poller.poll()
-            if c == ' ':
+            if key_poller.poll() == ' ':
                 print("SPACE PRESSED")
 
 Thread(target=key, args=[]).start()
