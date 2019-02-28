@@ -1,7 +1,7 @@
 import time
 from threading import Thread
 
-# https://stackoverflow.com/a/22085679/9335095
+# https://stackoverflow.com/a/31736883/9335095
 
 global is_windows
 
