@@ -3,29 +3,31 @@ from threading import Thread
 
 # https://stackoverflow.com/a/31736883/9335095
 
-global is_windows
+global IS_WINDOWS
 
-is_windows = False
+IS_WINDOWS = False
 try:
     from win32api import STD_INPUT_HANDLE
-    from win32console import GetStdHandle, KEY_EVENT, ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT
-    is_windows = True
-except ImportError as e:
+    from win32console import GetStdHandle, KEY_EVENT, ENABLE_ECHO_INPUT, \
+        ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT
+    IS_WINDOWS = True
+except ImportError as error:
     import sys
     import select
     import termios
 
 class KeyPoller():
     def __enter__(self):
-        global is_windows
-        if is_windows:
-            self.readHandle = GetStdHandle(STD_INPUT_HANDLE)
-            self.readHandle.SetConsoleMode(ENABLE_LINE_INPUT|ENABLE_ECHO_INPUT|ENABLE_PROCESSED_INPUT)
+        global IS_WINDOWS
+        if IS_WINDOWS:
+            self.read_handle = GetStdHandle(STD_INPUT_HANDLE)
+            self.read_handle.SetConsoleMode(
+                ENABLE_LINE_INPUT|ENABLE_ECHO_INPUT|ENABLE_PROCESSED_INPUT)
 
-            self.curEventLength = 0
-            self.curKeysLength = 0
+            self.cur_event_length = 0
+            self.cur_keys_length = 0
 
-            self.capturedChars = []
+            self.captured_chars = []
         else:
             # Save the terminal settings
             self.fd = sys.stdin.fileno()
@@ -39,47 +41,47 @@ class KeyPoller():
         return self
 
     def __exit__(self, type, value, traceback):
-        if is_windows:
+        if IS_WINDOWS:
             pass
         else:
             termios.tcsetattr(self.fd, termios.TCSAFLUSH, self.old_term)
 
     def poll(self):
-        if is_windows:
-            if not len(self.capturedChars) == 0:
-                return self.capturedChars.pop(0)
+        if IS_WINDOWS:
+            if not len(self.captured_chars) == 0:
+                return self.captured_chars.pop(0)
 
-            eventsPeek = self.readHandle.PeekConsoleInput(10000)
+            events_peek = self.read_handle.PeekConsoleInput(10000)
 
-            if len(eventsPeek) == 0:
+            if len(events_peek) == 0:
                 return None
 
-            if not len(eventsPeek) == self.curEventLength:
-                for curEvent in eventsPeek[self.curEventLength:]:
+            if not len(events_peek) == self.cur_event_length:
+                for curEvent in events_peek[self.cur_event_length:]:
                     if curEvent.EventType == KEY_EVENT:
                         if ord(curEvent.Char) == 0 or not curEvent.KeyDown:
                             pass
                         else:
                             curChar = str(curEvent.Char)
-                            self.capturedChars.append(curChar)
-                self.curEventLength = len(eventsPeek)
+                            self.captured_chars.append(curChar)
+                self.cur_event_length = len(events_peek)
 
-            if not len(self.capturedChars) == 0:
-                return self.capturedChars.pop(0)
+            if not len(self.captured_chars) == 0:
+                return self.captured_chars.pop(0)
             else:
                 return None
         else:
-            dr,dw,de = select.select([sys.stdin], [], [], 0)
+            dr, dw, de = select.select([sys.stdin], [], [], 0)
             if not dr == []:
                 return sys.stdin.read(1)
             return None
 
 def key():
-    with KeyPoller() as keyPoller:
+    with KeyPoller() as key_poller:
         while True:
-            c = keyPoller.poll()
+            c = key_poller.poll()
             if c == ' ':
-                 print("SPACE PRESSED")
+                print("SPACE PRESSED")
 
 Thread(target=key, args=[]).start()
 
