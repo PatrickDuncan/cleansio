@@ -24,6 +24,11 @@ class Censor():
         # Return a new AudioSegment object because the file may have changed
         return AudioSegment.from_file(file_path)
 
+    def __create_clean_file(self, clean_file):
+        clean_file.export(self.location, format=self.encoding)
+        print(Fore.CYAN + 'Successfully created clean file, it\'s located at:')
+        print(Fore.YELLOW + self.location)
+
     def __mute_explicits(self, file_path, audio_segment, timestamps):
         """ Go through each word, if its an explicit, mute the duration """
         muted = False
@@ -38,6 +43,15 @@ class Censor():
             # Overwrite the chunk with the mute(s) safely
             audio_segment.export(file_path, format='wav')
             Censor.lock.release()
+
+    def __location(self, location):
+        if location:
+            return location[0]
+        current_dir = str(Path(__file__).parents[2])
+        return current_dir + '/clean_file.' + self.encoding
+
+    def __encoding(cls, encoding):
+        return encoding[0] if encoding else 'wav'
 
     @classmethod
     def __mute_explicit(cls, audio_segment, timestamp):
