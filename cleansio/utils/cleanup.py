@@ -12,6 +12,8 @@ def cleanup(_sig_num=None, _cur_stack_frame=None):
     """ Removes temporary files """
     remove_conversions()
     remove_chunks()
+    subprocess.run(["SwitchAudioSource", "-t", "output", "-s", "Built-in Output"])
+    subprocess.run(["SwitchAudioSource", "-t", "input", "-s", "Built-in Microphone"])
     sys.exit(0)
 
 def setup_cleanup():

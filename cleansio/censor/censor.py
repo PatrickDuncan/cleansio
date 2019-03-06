@@ -27,6 +27,11 @@ class Censor():
         else: # No mute so just return the original file
             return wrapper
 
+    def __create_clean_file(self, clean_file):
+        clean_file.export(self.location, format=self.encoding)
+        print(Fore.CYAN + 'Successfully created clean file, it\'s located at:')
+        print(Fore.YELLOW + self.location)
+
     def __mute_explicits(self, file_path, wrapper, timestamps):
         """ Go through each word, if its an explicit, mute the duration """
         muted = False
@@ -42,6 +47,15 @@ class Censor():
             wrapper.segment.export(file_path, format='wav')
             Censor.lock.release()
         return wrapper
+
+    def __location(self, location):
+        if location:
+            return location[0]
+        current_dir = str(Path(__file__).parents[2])
+        return current_dir + '/clean_file.' + self.encoding
+
+    def __encoding(cls, encoding):
+        return encoding[0] if encoding else 'wav'
 
     @classmethod
     def __mute_explicit(cls, wrapper, timestamp):

@@ -46,12 +46,6 @@ class CensorFile(Censor):
         print(Fore.CYAN + 'Successfully created clean file, it\'s located at:')
         print(Fore.YELLOW + self.location)
 
-    def __location(self, location):
-        if location:
-            return location[0]
-        current_dir = str(Path(__file__).parents[2])
-        return current_dir + '/clean_file.' + self.encoding
-
     @classmethod
     def __create_clean_segment(cls, censored_chunks):
         clean_file = AudioSegment.empty()
@@ -75,7 +69,3 @@ class CensorFile(Censor):
             total=progress_bar_total)
         progress_bar_step = (1 / len(normal_chunks)) * progress_bar_total
         return progress_bar, progress_bar_step
-
-    @classmethod
-    def __encoding(cls, encoding):
-        return encoding[0] if encoding else 'wav'

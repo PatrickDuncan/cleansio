@@ -27,3 +27,11 @@ def convert(file_path, encoding='wav'):
         str(milliseconds) + '.' + encoding
     __create_converted_file(file_path, encoding)
     return os.environ['CLEANSIO_TEMP_FILE']
+
+def create_converted_audio(file_path, encoding):
+    audio_segment = AudioSegment.from_file(file_path)
+    audio_segment                                     \
+        .set_channels(1)                              \
+        .set_sample_width(2)                          \
+        .set_frame_rate(__sample_rate(audio_segment))
+    return audio_segment
