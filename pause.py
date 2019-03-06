@@ -1,5 +1,8 @@
+# pylint: disable=W0201
+
 """ Retrieves key input on macOS and Windows """
 
+from os import environ
 import time
 from threading import Thread
 
@@ -34,18 +37,18 @@ class KeyPoller():
         else:
             # Save the terminal settings
             self.fileno = sys.stdin.fileno()
-            self.new_term = termios.tcgetattr(self.fileno)
-            self.old_term = termios.tcgetattr(self.fileno)
+            self.new = termios.tcgetattr(self.fileno)
+            self.old = termios.tcgetattr(self.fileno)
 
             # New terminal setting unbuffered
-            self.new_term[3] = (self.new_term[3] & ~termios.ICANON & ~termios.ECHO)
-            termios.tcsetattr(self.fileno, termios.TCSAFLUSH, self.new_term)
+            self.new[3] = (self.new[3] & ~termios.ICANON & ~termios.ECHO)
+            termios.tcsetattr(self.fileno, termios.TCSAFLUSH, self.new)
 
         return self
 
     def __exit__(self, _, value, traceback):
         if not IS_WINDOWS:
-            termios.tcsetattr(self.fileno, termios.TCSAFLUSH, self.old_term)
+            termios.tcsetattr(self.fileno, termios.TCSAFLUSH, self.old)
 
     def poll(self):
         """ Returns the pressed key or Null """
@@ -73,18 +76,24 @@ class KeyPoller():
             else:
                 return None
         else:
-            dr, _, _ = select.select([sys.stdin], [], [], 0)
-            if not dr == []:
+            inp, _, _ = select.select([sys.stdin], [], [], 0)
+            if not inp == []:
                 return sys.stdin.read(1)
             return None
 
-def key():
+def space_key():
+    """ Listen for when a space key is pressed and update CLEANSIO_SPACE_KEY """
     with KeyPoller() as key_poller:
         while True:
             if key_poller.poll() == ' ':
                 print("SPACE PRESSED")
+                env_var = 'CLEANSIO_SPACE_KEY'
+                if not env_var in environ or environ[env_var] == 'false':
+                    environ[env_var] = 'true'
+                else:
+                    environ[env_var] = 'false'
 
-Thread(target=key, args=[]).start()
+Thread(target=space_key, args=[]).start()
 
 while True:
     print("LOOP")
