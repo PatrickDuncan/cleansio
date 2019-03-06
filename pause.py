@@ -1,4 +1,4 @@
-# pylint: disable=W0201
+# pylint: disable=W0201,W0604,W0603
 
 """ Retrieves key input on macOS and Windows """
 
@@ -53,12 +53,12 @@ class KeyPoller():
     def poll(self):
         """ Returns the pressed key or Null """
         if IS_WINDOWS:
-            if not len(self.captured_chars) == 0:
+            if not self.captured_chars:
                 return self.captured_chars.pop(0)
 
             events_peek = self.read_handle.PeekConsoleInput(10000)
 
-            if len(events_peek) == 0:
+            if events_peek:
                 return None
 
             if not len(events_peek) == self.cur_event_length:
@@ -71,7 +71,7 @@ class KeyPoller():
                             self.captured_chars.append(cur_char)
                 self.cur_event_length = len(events_peek)
 
-            if not len(self.captured_chars) == 0:
+            if not self.captured_chars:
                 return self.captured_chars.pop(0)
             else:
                 return None
@@ -86,7 +86,7 @@ def space_key():
     with KeyPoller() as key_poller:
         while True:
             if key_poller.poll() == ' ':
-                print("SPACE PRESSED")
+                print('SPACE PRESSED')
                 env_var = 'CLEANSIO_SPACE_KEY'
                 if not env_var in environ or environ[env_var] == 'false':
                     environ[env_var] = 'true'
@@ -96,5 +96,5 @@ def space_key():
 Thread(target=space_key, args=[]).start()
 
 while True:
-    print("LOOP")
+    print('LOOP')
     time.sleep(2)
