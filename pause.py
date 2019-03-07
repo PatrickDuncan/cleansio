@@ -82,12 +82,12 @@ class KeyPoller():
             return None
 
 def space_key():
-    """ Listen for when a space key is pressed and update CLEANSIO_SPACE_KEY """
+    """ Listen for when a space key is pressed and update CLEANSIO_PAUSE """
     with KeyPoller() as key_poller:
         while True:
             if key_poller.poll() == ' ':
                 print('SPACE PRESSED')
-                env_var = 'CLEANSIO_SPACE_KEY'
+                env_var = 'CLEANSIO_PAUSE'
                 if not env_var in environ or environ[env_var] == 'false':
                     environ[env_var] = 'true'
                 else:
