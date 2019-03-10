@@ -5,6 +5,7 @@ from os import environ, remove
 from signal import signal, SIGABRT, SIGILL, SIGINT, SIGSEGV, SIGTERM
 import sys
 from .files import append_before_ext
+import subprocess
 
 # Cleans up files on normal or abnormal exit
 # The arguments are unused - they are only here to satisfy atexit.
@@ -12,8 +13,9 @@ def cleanup(_sig_num=None, _cur_stack_frame=None):
     """ Removes temporary files """
     remove_conversions()
     remove_chunks()
-    subprocess.run(["SwitchAudioSource", "-t", "output", "-s", "Built-in Output"])
-    subprocess.run(["SwitchAudioSource", "-t", "input", "-s", "Built-in Microphone"])
+    if 'CLEANSIO_REALTIME' in environ and 'CLEANSIO_OLD_SOUND_OUT' in environ and 'CLEANSIO_OLD_SOUND_IN' in environ:
+        subprocess.run(['SwitchAudioSource', '-t', 'output', '-s', environ['CLEANSIO_OLD_SOUND_OUT']])
+        subprocess.run(['SwitchAudioSource', '-t', 'input', '-s', environ['CLEANSIO_OLD_SOUND_IN']])
     sys.exit(0)
 
 def setup_cleanup():

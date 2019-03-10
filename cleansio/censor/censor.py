@@ -24,11 +24,6 @@ class Censor():
         # Return a new AudioSegment object because the file may have changed
         return AudioSegment.from_file(file_path)
 
-    def __create_clean_file(self, clean_file):
-        clean_file.export(self.location, format=self.encoding)
-        print(Fore.CYAN + 'Successfully created clean file, it\'s located at:')
-        print(Fore.YELLOW + self.location)
-
     def __mute_explicits(self, file_path, audio_segment, timestamps):
         """ Go through each word, if its an explicit, mute the duration """
         muted = False
