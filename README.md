@@ -33,12 +33,13 @@ python cleansio/cleansio.py --help
     ```sh
     pip install -r requirements.txt
     ```
-8. _(OPTIONAL)_ If you're a developer run:
+8. Follow the **[real-time setup instructions](https://github.com/PatrickDuncan/cleansio/wiki/Real-Time-Installation)**
+9. _(OPTIONAL)_ If you're a developer run:
     ```sh
     pip install -r requirements-dev.txt
     ```
-9. _(OPTIONAL)_ Install the [Google Cloud SDK](https://cloud.google.com/sdk/docs/)
-10. You're all set!
+10. _(OPTIONAL)_ Install the [Google Cloud SDK](https://cloud.google.com/sdk/docs/)
+11. You're all set!
 
 ## Documentation
 
