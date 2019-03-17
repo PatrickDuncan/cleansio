@@ -16,4 +16,4 @@ if __name__ == '__main__':
     if is_file_mode():
         CensorFile(ARGS, EXPLICITS).censor()
     else:
-        CensorRealtime(EXPLICITS).censor()
+        CensorRealtime(ARGS, EXPLICITS).censor()

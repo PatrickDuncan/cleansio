@@ -1,6 +1,8 @@
 """ Censors audio chunks by muting explicit sections """
 
 from multiprocessing import Lock
+from colorama import Fore
+from pathlib import Path
 from pydub import AudioSegment
 from speech import Timestamp, Transcribe
 
@@ -10,9 +12,11 @@ class Censor():
     explicit_count = 0
     muted_timestamps = []
 
-    def __init__(self, explicits):
+    def __init__(self, explicits, output_encoding, output_location):
         super().__init__()
         self.explicits = explicits
+        self.encoding = self.__encoding(output_encoding)
+        self.location = self.__location(output_location)
 
     def censor_audio_chunk(self, file_path):
         """ Common process to censor an audio chunk """
@@ -23,6 +27,13 @@ class Censor():
             self.__mute_explicits(file_path, audio_segment, timestamps)
         # Return a new AudioSegment object because the file may have changed
         return AudioSegment.from_file(file_path)
+
+    def create_clean_file(self, clean_file):
+        print('Cleansio found {1}{0}{2} explicit(s)!'.format(
+            Censor.explicit_count, Fore.GREEN, Fore.RESET))
+        clean_file.export(self.location, format=self.encoding)
+        print(Fore.CYAN + 'Successfully created clean file, it\'s located at:')
+        print(Fore.YELLOW + self.location)
 
     def __mute_explicits(self, file_path, audio_segment, timestamps):
         """ Go through each word, if its an explicit, mute the duration """
@@ -95,3 +106,12 @@ class Censor():
           abs(stamp1['end'] - stamp2['end']) < 201:
             return True
         return False
+
+    def __encoding(cls, encoding):
+        return encoding[0] if encoding else 'wav'
+
+    def __location(self, location):
+        if location:
+            return location[0]
+        current_dir = str(Path(__file__).parents[2])
+        return current_dir + '/clean_file.' + self.encoding

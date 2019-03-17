@@ -28,10 +28,24 @@ def convert(file_path, encoding='wav'):
     __create_converted_file(file_path, encoding)
     return os.environ['CLEANSIO_TEMP_FILE']
 
-def create_converted_audio(file_path, encoding):
+def read_and_convert_audio(file_path, encoding):
     audio_segment = AudioSegment.from_file(file_path)
     audio_segment                                     \
         .set_channels(1)                              \
         .set_sample_width(2)                          \
         .set_frame_rate(__sample_rate(audio_segment))
     return audio_segment
+
+def convert_audio_segment(audio_segment):
+    audio_segment                                     \
+        .set_channels(1)                              \
+        .set_sample_width(2)                          \
+        .set_frame_rate(__sample_rate(audio_segment))
+    return audio_segment
+
+def convert_and_write_chunk(chunk, file_path, encoding):
+    """ LINEAR16 must be mono and 16 bits (2) """
+    chunk.set_channels(1)                             \
+        .set_sample_width(2)                          \
+        .set_frame_rate(44100)                        \
+        .export(file_path, format=encoding)
