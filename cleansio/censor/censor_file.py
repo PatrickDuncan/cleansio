@@ -12,10 +12,8 @@ from .censor import Censor
 class CensorFile(Censor):
     """ Removes explicits from a file """
     def __init__(self, args, explicits):
-        super().__init__(explicits)
+        super().__init__(explicits, args.output_encoding, args.output_location)
         self.file_path = args.file_path
-        self.encoding = self.__encoding(args.output_encoding)
-        self.location = self.__location(args.output_location)
 
     def censor(self):
         """ Creates a clean/new version of a file by removing explicits """
@@ -30,7 +28,7 @@ class CensorFile(Censor):
         censored_chunks = ThreadPool(6).map(self.__censor_chunk, async_iter)
         clean_file = self.__create_clean_segment(censored_chunks)
         p_bar.close()
-        self.__create_clean_file(clean_file)
+        self.create_clean_file(clean_file)
 
     def __censor_chunk(self, async_iter):
         """ Censors a chunk and updates the progress bar """
@@ -69,18 +67,3 @@ class CensorFile(Censor):
             total=progress_bar_total)
         progress_bar_step = (1 / len(normal_chunks)) * progress_bar_total
         return progress_bar, progress_bar_step
-
-    def __location(self, location):
-        if location:
-            return location[0]
-        current_dir = str(Path(__file__).parents[2])
-        return current_dir + '/clean_file.' + self.encoding
-
-    @classmethod
-    def __encoding(cls, encoding):
-        return encoding[0] if encoding else 'wav'
-
-    def __create_clean_file(self, clean_file):
-        clean_file.export(self.location, format=self.encoding)
-        print(Fore.CYAN + 'Successfully created clean file, it\'s located at:')
-        print(Fore.YELLOW + self.location)
