@@ -20,7 +20,7 @@ def test_censor():
         file_path = __get_file('/../data/testing.wav')
         audio_segment = AudioSegment.from_file(file_path)
         # Duplicate the audio file and begin muting the new file
-        file_path_duplicate = __get_file('/../data//testing-censored.wav')
+        file_path_duplicate = __get_file('/../data/testing-censored-0.wav')
         duplicate_file = audio_segment.export(file_path_duplicate, format = 'wav')
         audio_segment_duplicate = AudioSegment.from_file(file_path_duplicate)
         # Test that the explicits were successfully removed

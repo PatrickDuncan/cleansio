@@ -41,6 +41,8 @@ class CensorFile(Censor):
         return self.censor_audio_chunk(chunk_file_path)
 
     def __create_clean_file(self, clean_file):
+        print('Cleansio found {1}{0}{2} explicit(s)!'.format(
+            Censor.explicit_count, Fore.GREEN, Fore.RESET))
         clean_file.export(self.location, format=self.encoding)
         print(Fore.CYAN + 'Successfully created clean file, it\'s located at:')
         print(Fore.YELLOW + self.location)

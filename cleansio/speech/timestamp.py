@@ -22,7 +22,7 @@ class Timestamp():
         timestamps = []
         for word in self.lyrics:
             timestamps.append({
-                'word': word.word,
+                'word': word.word.lower(),
                 'start': gcs_time_to_ms(word.start_time),
                 'end': gcs_time_to_ms(word.end_time)
             })

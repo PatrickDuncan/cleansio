@@ -1,7 +1,5 @@
 """ Cleans up temporary files after the program runs """
 
-# environ - To read the environment variables which we use for communication
-# remove  - To remove the temporary files
 from atexit import register
 from os import environ, remove
 from signal import signal, SIGABRT, SIGILL, SIGINT, SIGSEGV, SIGTERM
