@@ -2,10 +2,11 @@
 
 from atexit import register
 from os import environ, remove
+import platform
 from signal import signal, SIGABRT, SIGILL, SIGINT, SIGSEGV, SIGTERM
 import sys
 from .files import append_before_ext
-import subprocess
+from .cleanup_mac import CleanupMac
 
 # Cleans up files on normal or abnormal exit
 # The arguments are unused - they are only here to satisfy atexit.
@@ -13,9 +14,9 @@ def cleanup(_sig_num=None, _cur_stack_frame=None):
     """ Removes temporary files """
     remove_conversions()
     remove_chunks()
-    if 'CLEANSIO_REALTIME' in environ and 'CLEANSIO_OLD_SOUND_OUT' in environ and 'CLEANSIO_OLD_SOUND_IN' in environ:
-        subprocess.run(['SwitchAudioSource', '-t', 'output', '-s', environ['CLEANSIO_OLD_SOUND_OUT']])
-        subprocess.run(['SwitchAudioSource', '-t', 'input', '-s', environ['CLEANSIO_OLD_SOUND_IN']])
+    system = platform.system()
+    if system == 'Darwin':
+        CleanupMac.clean()
     sys.exit(0)
 
 def setup_cleanup():
