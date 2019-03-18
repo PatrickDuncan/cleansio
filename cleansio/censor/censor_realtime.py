@@ -46,14 +46,6 @@ class CensorRealtime(Censor):
             with self.lock:
                 self.all_data.append(mydata)
 
-        for clean_file_chunk in self.clean_file_chunks:
-            self.clean_file += clean_file_chunk
-
-        print(str(self.all_chunks))
-        create_env_var('CLEANSIO_CHUNKS_LIST', str(self.all_chunks))
-
-        self.create_clean_file(self.clean_file)
-
     def run(self):
         index = 0
         overlapping_chunk_start = convert_audio_segment(AudioSegment.silent(duration=2500))
