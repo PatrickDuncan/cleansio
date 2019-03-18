@@ -99,6 +99,6 @@ class CensorRealtime(Censor):
     def __switch_audio_source(cls) :
         create_env_var('CLEANSIO_OLD_SOUND_OUT',subprocess.run(['SwitchAudioSource','-c','-t','output'],stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n',''))
         create_env_var('CLEANSIO_OLD_SOUND_IN',subprocess.run(['SwitchAudioSource','-c','-t','input'],stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n',''))
-        os.system('SwitchAudioSource -t output -s "Multi-Output Device"')
+        os.system('SwitchAudioSource -t output -s "Soundflower (2ch)"')
         os.system('SwitchAudioSource -t input -s "Soundflower (2ch)"')
         sd.default.device = 2
