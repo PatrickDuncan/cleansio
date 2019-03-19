@@ -24,7 +24,7 @@ class Censor():
         # Return a new AudioSegment object because the file may have changed
         return AudioSegment.from_file(file_path)
 
-    def __mute_explicits(self, file_path, chunk, timestamps):
+    def __mute_explicits(self, file_path, audio_segment, timestamps):
         """ Go through each word, if its an explicit, mute the duration """
         muted = False
         for stamp in timestamps:
