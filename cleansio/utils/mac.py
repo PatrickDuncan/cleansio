@@ -3,7 +3,7 @@
 from os import environ
 from subprocess import run
 
-class MacUtil(object):
+class MacUtil():
     """ Utility functions for macOS """
     def __init__(self):
         super().__init__()

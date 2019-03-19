@@ -3,7 +3,8 @@
 from .censor import Censor
 from utils import create_env_var, create_temp_dir, append_before_ext, \
     time_filename, MacUtil
-from audio import improve_accuracy, convert_audio_segment, convert_and_write_chunk, read_and_convert_audio
+from audio import improve_accuracy, convert_audio_segment, \
+    convert_and_write_chunk, read_and_convert_audio
 from pathlib import Path
 from pydub import AudioSegment
 from colorama import Fore
@@ -69,7 +70,7 @@ class CensorRealtimeMac(Censor):
                 sf.write(file_path, mydata, 44100)
                 self.__update_env_chunks_list(file_path)
                 # Create AudioSegment object from recording and append it to list
-                recorded_chunk = read_and_convert_audio(file_path, 'wav')
+                recorded_chunk = read_and_convert_audio(file_path)
                 self.all_chunks.append(file_path)
 
                 # Use first half of recorded chunk as start of overlapping chunk
@@ -93,11 +94,10 @@ class CensorRealtimeMac(Censor):
                     convert_and_write_chunk(overlapping_accuracy_chunk,chunk_file,'wav')
 
                 self.clean_file_chunks.append(self.censor_audio_chunk(file_path))
-
                 index += 5
 
     @classmethod
-    def __switch_audio_source(cls) :
+    def __switch_audio_source(cls):
         create_env_var('CLEANSIO_OLD_SOUND_OUT', MacUtil.audio_source('output'))
         create_env_var('CLEANSIO_OLD_SOUND_IN', MacUtil.audio_source('input'))
         MacUtil.switch_audio_source('output', 'Soundflower (2ch)')
