@@ -1,7 +1,7 @@
 """ Censors audio chunks in a continuous stream """
 
 from .censor import Censor
-from utils import create_env_var, create_temp_dir, append_before_ext
+from utils import create_env_var, create_temp_dir, append_before_ext, time_filename
 from audio import improve_accuracy, convert_audio_segment, convert_and_write_chunk, read_and_convert_audio
 from pathlib import Path
 from pydub import AudioSegment
@@ -15,12 +15,15 @@ import subprocess
 import threading
 
 class CensorRealtimeMac(Censor):
+    running = True
+
     """ Filters audio stream in real-time """
     def __init__(self, args, explicits):
         super().__init__(explicits, args.output_encoding, args.output_location)
         self.__switch_audio_source()
+        create_env_var('CLEANSIO_CHUNKS_LIST', '[]')
         self.lock = threading.Lock()
-        self.chunk_prefix = create_temp_dir() + 'output'
+        self.chunk_prefix = create_temp_dir() + time_filename() + '-'
         self.all_chunks = []
         self.clean_file_chunks = []
         self.all_data = deque([])
@@ -37,20 +40,25 @@ class CensorRealtimeMac(Censor):
         processing_thread.daemon = True
         processing_thread.start()
 
-        for i in range(0,60+1,5):
-            print('i={}'.format(i))
+        for i in range(0,10+1,5):
             # Record
             mydata = sd.rec(int(samplerate * duration), samplerate=samplerate,
                             channels=1, blocking=True)
             with self.lock:
                 self.all_data.append(mydata)
 
+        CensorRealtimeMac.running = False
+        processing_thread.join()
+
     def run(self):
         index = 0
         overlapping_chunk_start = convert_audio_segment(AudioSegment.silent(duration=2500))
         while True:
-            if len(self.all_data) > 0:
+            if (not CensorRealtimeMac.running):
+                break
 
+            if len(self.all_data) > 0:
+                print('index={}'.format(index))
                 with self.lock:
                     mydata = self.all_data.popleft()
 
@@ -58,7 +66,7 @@ class CensorRealtimeMac(Censor):
                 file_path = self.chunk_prefix + str(index) +'.wav'
                 # print('normal_chunks filepath is {}'.format(file_path))
                 sf.write(file_path, mydata, 44100)
-
+                self.__update_env_chunks_list(file_path)
                 # Create AudioSegment object from recording and append it to list
                 recorded_chunk = read_and_convert_audio(file_path, 'wav')
                 self.all_chunks.append(file_path)
@@ -67,6 +75,7 @@ class CensorRealtimeMac(Censor):
                 overlapping_chunk = overlapping_chunk_start + recorded_chunk[:2500]
                 overlapping_path = append_before_ext(file_path, '-overlapping')
                 convert_and_write_chunk(overlapping_chunk,overlapping_path,'wav')
+                self.__update_env_chunks_list(overlapping_path)
                 self.all_chunks.append(overlapping_path)
 
                 # Create next overlapping_start from second half of recorded chunk
@@ -102,3 +111,11 @@ class CensorRealtimeMac(Censor):
                 sd.default.device = device_index
                 break
             device_index += 1
+
+    @classmethod
+    def __update_env_chunks_list(cls, file_path):
+        """ Call after every write for later cleanup """
+        env_list = os.environ['CLEANSIO_CHUNKS_LIST']
+        beginning = "['" if env_list[:-1] == '[' else env_list[:-1] + ", '"
+        create_env_var(
+            'CLEANSIO_CHUNKS_LIST', beginning + file_path + "']")

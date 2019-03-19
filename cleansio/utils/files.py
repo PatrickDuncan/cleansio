@@ -2,6 +2,7 @@
 
 from errno import EEXIST
 import os
+import time
 from os.path import basename, expanduser
 from .env import create_env_var
 
@@ -34,3 +35,6 @@ def append_before_ext(path, addition):
     if dot_index == -1: # . Not found
         return path + addition
     return path[:dot_index] + addition + path[dot_index:]
+
+def time_filename():
+    return str(int(round(time.time() * 1000)))
