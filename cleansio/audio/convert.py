@@ -1,9 +1,8 @@
 """ Converts audio properties """
 
 import os
-import time
 from pydub import AudioSegment
-from utils import create_temp_dir
+from utils import create_temp_dir, time_filename
 
 def __sample_rate(audio_segment):
     """ GCS requires at least 16 kHz. Either upscale or keep the same. """
@@ -21,10 +20,9 @@ def __create_converted_file(file_path, encoding):
 
 def convert(file_path, encoding='wav'):
     """ Converts an audio file's encoding, returns the file path """
-    milliseconds = int(round(time.time() * 1000))
     temp_dir = create_temp_dir()
     os.environ['CLEANSIO_TEMP_FILE'] = temp_dir + \
-        str(milliseconds) + '.' + encoding
+        str(time_filename()) + '.' + encoding
     __create_converted_file(file_path, encoding)
     return os.environ['CLEANSIO_TEMP_FILE']
 
