@@ -1,9 +1,9 @@
 """ Censors audio chunks in a continuous stream """
 
-from colorama import Fore
 import platform
-from .censor_realtime_mac import CensorRealtimeMac
+from colorama import Fore
 from utils import create_env_var
+from .censor_realtime_mac import CensorRealtimeMac
 
 class CensorRealtime():
     """ Filters audio stream in real-time """
@@ -14,6 +14,7 @@ class CensorRealtime():
         create_env_var('CLEANSIO_REALTIME', 'true')
 
     def censor(self):
+        """ Censors audio in real-time. Implementation dependent on OS """
         system = platform.system()
         if system == 'Darwin':
             CensorRealtimeMac(self.args, self.explicits).censor()
