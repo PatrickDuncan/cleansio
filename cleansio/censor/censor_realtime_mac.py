@@ -1,7 +1,8 @@
 """ Censors audio chunks in a continuous stream """
 
 from .censor import Censor
-from utils import create_env_var, create_temp_dir, append_before_ext, time_filename
+from utils import create_env_var, create_temp_dir, append_before_ext, \
+    time_filename, MacUtil
 from audio import improve_accuracy, convert_audio_segment, convert_and_write_chunk, read_and_convert_audio
 from pathlib import Path
 from pydub import AudioSegment
@@ -97,10 +98,10 @@ class CensorRealtimeMac(Censor):
 
     @classmethod
     def __switch_audio_source(cls) :
-        create_env_var('CLEANSIO_OLD_SOUND_OUT',subprocess.run(['SwitchAudioSource','-c','-t','output'],stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n',''))
-        create_env_var('CLEANSIO_OLD_SOUND_IN',subprocess.run(['SwitchAudioSource','-c','-t','input'],stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n',''))
-        os.system('SwitchAudioSource -t output -s "Soundflower (2ch)"')
-        os.system('SwitchAudioSource -t input -s "Soundflower (2ch)"')
+        create_env_var('CLEANSIO_OLD_SOUND_OUT', MacUtil.audio_source('output'))
+        create_env_var('CLEANSIO_OLD_SOUND_IN', MacUtil.audio_source('input'))
+        MacUtil.switch_audio_source('output', 'Soundflower (2ch)')
+        MacUtil.switch_audio_source('input', 'Soundflower (2ch)')
         cls.__set_default_device('Soundflower (2ch)')
 
     @classmethod
