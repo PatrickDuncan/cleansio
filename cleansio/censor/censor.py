@@ -106,12 +106,3 @@ class Censor():
           abs(stamp1['end'] - stamp2['end']) < 201:
             return True
         return False
-
-    def __encoding(cls, encoding):
-        return encoding[0] if encoding else 'wav'
-
-    def __location(self, location):
-        if location:
-            return location[0]
-        current_dir = str(Path(__file__).parents[2])
-        return current_dir + '/clean_file.' + self.encoding
