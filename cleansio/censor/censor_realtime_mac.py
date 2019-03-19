@@ -92,4 +92,13 @@ class CensorRealtimeMac(Censor):
         create_env_var('CLEANSIO_OLD_SOUND_IN',subprocess.run(['SwitchAudioSource','-c','-t','input'],stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n',''))
         os.system('SwitchAudioSource -t output -s "Soundflower (2ch)"')
         os.system('SwitchAudioSource -t input -s "Soundflower (2ch)"')
-        sd.default.device = 2
+        cls.__set_default_device('Soundflower (2ch)')
+
+    @classmethod
+    def __set_default_device(cls, device_name):
+        device_index = 0
+        for device in sd.query_devices():
+            if device['name'] == device_name:
+                sd.default.device = device_index
+                break
+            device_index += 1
