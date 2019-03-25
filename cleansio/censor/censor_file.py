@@ -3,7 +3,7 @@
 from itertools import repeat
 from multiprocessing.dummy import Pool as ThreadPool
 from pathlib import Path
-from colorama import Fore
+from colorama import Fore, Style
 from tqdm import tqdm
 from pydub import AudioSegment
 from audio import AudioFile
@@ -41,8 +41,9 @@ class CensorFile(Censor):
         return self.censor_audio_chunk(chunk_file_path)
 
     def __create_clean_file(self, clean_file):
-        print('Cleansio found {1}{0}{2} explicit(s)!'.format(
-            Censor.explicit_count, Fore.GREEN, Fore.RESET))
+        exp = 'explicit' if Censor.explicit_count == 1 else 'explicits'
+        print('Cleansio found {1}{2}{0}{3} {4}!'.format(
+            Censor.explicit_count, Style.BRIGHT, Fore.GREEN, Fore.RESET, exp))
         clean_file.export(self.location, format=self.encoding)
         print(Fore.CYAN + 'Successfully created clean file, it\'s located at:')
         print(Fore.YELLOW + self.location)
@@ -57,10 +58,11 @@ class CensorFile(Censor):
     def __progress_bar(cls, normal_chunks):
         progress_bar_total = 100
         progress_bar = tqdm(
-            bar_format='{l_bar}{bar}', # Remove the detailed percentage stats
-            desc='Censoring file',     # Description
-            leave=False,               # Remove bar after completion
-            ncols=40,                  # Set width
+            # Remove the detailed percentage stats
+            bar_format=Style.BRIGHT + Fore.GREEN + '{l_bar}{bar}' + Fore.RESET,
+            desc='Censoring file', # Description
+            leave=False,           # Remove bar after completion
+            ncols=42,              # Set width
             total=progress_bar_total)
         progress_bar_step = (1 / len(normal_chunks)) * progress_bar_total
         return progress_bar, progress_bar_step

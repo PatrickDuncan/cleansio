@@ -21,9 +21,10 @@ class Timestamp():
             O(n) """
         timestamps = []
         for word in self.lyrics:
+            start = max(0, gcs_time_to_ms(word.start_time) - 50)
             timestamps.append({
                 'word': word.word.lower(),
-                'start': gcs_time_to_ms(word.start_time),
-                'end': gcs_time_to_ms(word.end_time)
+                'start': start,
+                'end': gcs_time_to_ms(word.end_time) + 50
             })
         return timestamps
