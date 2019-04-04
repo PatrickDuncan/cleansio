@@ -4,6 +4,7 @@ from itertools import repeat
 from multiprocessing.dummy import Pool as ThreadPool
 from google.cloud.speech import enums, SpeechClient, types
 from utils import append_before_ext
+from os import environ
 
 class Transcribe():
     """ Transcribes the lyrics from the vocals """
@@ -53,8 +54,14 @@ class Transcribe():
     @classmethod
     def __shift_time(cls, word):
         """ Increment the time relative to the normal chunk """
-        word.start_time.seconds += 2
-        word.start_time.nanos += 500000000
-        word.end_time.seconds += 2
-        word.end_time.nanos += 500000000
+        if 'CLEANSIO_REALTIME' in environ:
+            word.start_time.seconds -= 2
+            word.start_time.nanos -= 500000000
+            word.end_time.seconds -= 2
+            word.end_time.nanos -= 500000000
+        else:
+            word.start_time.seconds += 2
+            word.start_time.nanos += 500000000
+            word.end_time.seconds += 2
+            word.end_time.nanos += 500000000
         return word
