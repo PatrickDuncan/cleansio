@@ -65,7 +65,7 @@ class CensorRealtimeMac(Censor):
         if status:
             print(status)
 
-        #add to processing_queue
+        # add to processing_queue
         with self.processing_lock:
             self.processing_queue.append(indata)
         
@@ -106,7 +106,7 @@ class CensorRealtimeMac(Censor):
                 # Use first half of recorded chunk to complete overlapping chunk
                 overlapping_chunk = overlapping_chunk_start + recorded_chunk[:2500]
                 overlapping_path = append_before_ext(file_path, '-overlapping')
-                convert_and_write_chunk(overlapping_chunk,overlapping_path,'wav')
+                convert_and_write_chunk(overlapping_chunk, overlapping_path, 'wav')
                 self.__update_env_chunks_list(overlapping_path)
 
                 # Create next overlapping_start from second half of recorded chunk
@@ -115,22 +115,22 @@ class CensorRealtimeMac(Censor):
                 accuracy_path = append_before_ext(file_path, '-accuracy')
                 with open(accuracy_path, 'wb') as chunk_file:
                     accuracy_chunk = improve_accuracy(recorded_chunk)
-                    convert_and_write_chunk(accuracy_chunk,chunk_file,'wav')
+                    convert_and_write_chunk(accuracy_chunk, chunk_file, 'wav')
 
                 overlapping_accuracy_path = append_before_ext(overlapping_path, '-accuracy')
                 with open(overlapping_accuracy_path, 'wb') as chunk_file:
                     overlapping_accuracy_chunk = improve_accuracy(overlapping_chunk)
-                    convert_and_write_chunk(overlapping_accuracy_chunk,chunk_file,'wav')
+                    convert_and_write_chunk(overlapping_accuracy_chunk, chunk_file, 'wav')
 
                 clean_chunk = self.censor_audio_chunk(file_path)
                 clean_chunk_filepath = create_temp_dir() + 'clean_chunk.wav'
                 clean_chunk.export(clean_chunk_filepath, format='wav')
 
                 # Read and convert it to frames
-                clean_frames, sample_rate = sf.read(clean_chunk_filepath,dtype='float32',fill_value=0.0,frames=int(44100*5),always_2d=True)
+                clean_frames, sample_rate = sf.read(clean_chunk_filepath, dtype='float32', fill_value=0.0, frames=int(44100*5), always_2d=True)
                 with self.playback_lock:
                     self.playback_queue.append(clean_frames)
-                index += 5
+                index += 1
                 self.audio_file += clean_chunk
 
     @classmethod
