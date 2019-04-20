@@ -54,14 +54,8 @@ class Transcribe():
     @classmethod
     def __shift_time(cls, word):
         """ Increment the time relative to the normal chunk """
-        if 'CLEANSIO_REALTIME' in environ:
-            word.start_time.seconds -= 2
-            word.start_time.nanos -= 500000000
-            word.end_time.seconds -= 2
-            word.end_time.nanos -= 500000000
-        else:
-            word.start_time.seconds += 2
-            word.start_time.nanos += 500000000
-            word.end_time.seconds += 2
-            word.end_time.nanos += 500000000
+        word.start_time.seconds += 2
+        word.start_time.nanos += 500000000
+        word.end_time.seconds += 2
+        word.end_time.nanos += 500000000
         return word

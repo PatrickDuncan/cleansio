@@ -81,7 +81,7 @@ class CensorRealtimeMac(Censor):
 
     def run(self):
         index = 0
-        overlapping_chunk_start = convert_audio_segment(AudioSegment.silent(duration=2500))
+        # overlapping_chunk_start = AudioSegment.empty() #convert_audio_segment(AudioSegment.silent(duration=2500))
         while True:
             if (not CensorRealtimeMac.running):
                 break
@@ -90,7 +90,7 @@ class CensorRealtimeMac(Censor):
             with self.processing_lock:
                 processing_queue_length = len(self.processing_queue)
 
-            if processing_queue_length > 0:
+            if processing_queue_length >= 2:
                 print('processing_queue length='+str(processing_queue_length))
                 print('index={}'.format(index))
                 with self.processing_lock:
@@ -103,14 +103,23 @@ class CensorRealtimeMac(Censor):
                 # Create AudioSegment object from recording and append it to list
                 recorded_chunk = read_and_convert_audio(file_path)
 
-                # Use first half of recorded chunk to complete overlapping chunk
-                overlapping_chunk = overlapping_chunk_start + recorded_chunk[:2500]
+                with self.processing_lock:
+                    next_recorded_chunk_frames = self.processing_queue[0]
+                # Write adjacent chunk to file for overlapping
+                next_recorded_chunk_frames_file_path = self.chunk_prefix + str(index+1) +'.wav'
+                sf.write(next_recorded_chunk_frames_file_path, next_recorded_chunk_frames, 44100)
+                self.__update_env_chunks_list(next_recorded_chunk_frames_file_path)
+                # Create AudioSegment object from recording and append it to list
+                next_recorded_chunk = read_and_convert_audio(next_recorded_chunk_frames_file_path)
+
+                # Use second half of recorded chunk to start overlapping chunk
+                overlapping_chunk = recorded_chunk[-2500:] + next_recorded_chunk[:2500]
                 overlapping_path = append_before_ext(file_path, '-overlapping')
                 convert_and_write_chunk(overlapping_chunk, overlapping_path, 'wav')
                 self.__update_env_chunks_list(overlapping_path)
 
                 # Create next overlapping_start from second half of recorded chunk
-                overlapping_chunk_start = recorded_chunk[-2500:]
+                # overlapping_chunk_start = recorded_chunk[-2500:]
 
                 accuracy_path = append_before_ext(file_path, '-accuracy')
                 with open(accuracy_path, 'wb') as chunk_file:

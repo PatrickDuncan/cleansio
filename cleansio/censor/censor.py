@@ -7,12 +7,14 @@ from pydub import AudioSegment
 from audio import ChunkWrapper
 from speech import Timestamp, Transcribe
 from utils import CHUNK_LEN
+from audio import convert_and_write_chunk
 
 class Censor():
     """ Superclass of CensorFile and CensorRealtime """
     lock = Lock()
     explicit_count = 0
     muted_timestamps = []
+    leftover = 0
 
     def __init__(self, explicits, output_encoding, output_location):
         super().__init__()
@@ -23,9 +25,16 @@ class Censor():
     def censor_audio_chunk(self, file_path):
         """ Common process to censor an audio chunk """
         audio_segment = AudioSegment.from_file(file_path)
+        if Censor.leftover > 0:
+            audio_segment = AudioSegment.silent(duration=Censor.leftover) + audio_segment[Censor.leftover:]
+            with open(file_path, 'wb') as chunk_file:
+                    convert_and_write_chunk(audio_segment, chunk_file, 'wav')
+            print("Censoring " + str(Censor.leftover) + " length at start of this chunk and appending it to the remaing " + str(len(audio_segment[Censor.leftover:]))+ "s of chunk audio")
         lyrics = self.__get_lyrics(file_path, audio_segment)
+        print('lyrics = '+str(lyrics))
         timestamps = self.__get_timestamps(lyrics)
         wrapper = ChunkWrapper(audio_segment)
+        print('timestamps = '+str(timestamps))
         if timestamps:
             return self.__mute_explicits(file_path, wrapper, timestamps)
         else: # No mute so just return the original file
@@ -69,15 +78,14 @@ class Censor():
         len_as = len(wrapper.segment)
         # Check if the timestamp is outside of this chunk (from overlapping)
         if timestamp['start'] > len_as:
-<<<<<<< HEAD
             return wrapper
-        beginning = wrapper.segment[:timestamp['start']]
+        start_time = wrapper.segment[:timestamp['start']]
         # The end of the timestamp cannot be longer than the file
         end_time = len_as if len_as < timestamp['end'] else timestamp['end']
         duration = end_time - timestamp['start']
         mute = AudioSegment.silent(duration=duration)
         end = wrapper.segment[end_time:]
-        wrapper.segment = (beginning + mute + end)
+        wrapper.segment = (start_time + mute + end)
         wrapper.mute_next_start = \
             cls.__mute_next_chunk(wrapper, timestamp['end'])
         return wrapper
@@ -87,22 +95,6 @@ class Censor():
         # Store how much the next chunk should mute from its beginning
         extra_time = end_time - CHUNK_LEN
         return max(extra_time, wrapper.mute_next_start)
-=======
-            return audio_segment
-        if timestamp['end'] < 0:
-            return audio_segment
-        # For real-time, makes sure timestamp cannot before start of file
-        start_time = 0 if timestamp['start'] < 0 else timestamp['start']
-        # The end of the timestamp cannot be longer than the file
-        end_length = len_as if len_as < timestamp['end'] else timestamp['end']
-        beginning = AudioSegment.empty() if start_time <= 0 else audio_segment[:start_time]
-        duration = end_length - start_time
-        print('Censoring from ' + str(start_time) + ' to ' + str(end_length))
-        mute = AudioSegment.silent(duration=duration)
-        
-        end = audio_segment[end_length:]
-        return beginning + mute + end
->>>>>>> ce6fce7... Fix muting expl. in realtime overlapping chunks
 
     @classmethod
     def __get_lyrics(cls, file_path, audio_segment):
