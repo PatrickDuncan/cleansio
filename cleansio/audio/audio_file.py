@@ -5,7 +5,7 @@ from textwrap import dedent
 from pydub import AudioSegment
 from colorama import Fore
 from utils import create_temp_dir, create_env_var, file_name_no_ext, \
-    append_before_ext
+    append_before_ext, CHUNK_LEN
 from .accuracy import improve_accuracy
 from .convert import convert
 
@@ -20,7 +20,6 @@ class AudioFile:
         audio_segment = AudioSegment.from_file(self.file_path)
         self.channels = audio_segment.channels
         self.frame_rate = audio_segment.frame_rate
-        self.chunk_length = 5000 # In milliseconds
         self.normal_chunks, self.overlapping_chunks = \
             self.__init_create_chunks(audio_segment)
 
@@ -39,7 +38,7 @@ class AudioFile:
 
     def __create_chunks(self, audio_segment, temp_dir, chunks_arr, overlapping):
         start = 2500 if overlapping else 0
-        chunks = audio_segment[start::self.chunk_length]
+        chunks = audio_segment[start::CHUNK_LEN]
         for index, chunk in enumerate(chunks):
             chunk_path = self.__create_chunk(
                 index, chunk, 'wav', temp_dir, overlapping)
@@ -68,9 +67,9 @@ class AudioFile:
     def __last_overlapping_chunk(
             self, audio_segment, temp_dir, chunks_arr, overlapping):
         """ Check if the chunk is long enough to support overlapping """
-        if overlapping and len(audio_segment) % self.chunk_length < 4000:
+        if overlapping and len(audio_segment) % CHUNK_LEN < 4000:
             chunk_path = self.__create_chunk(
-                len(audio_segment) // self.chunk_length, # Last index
+                len(audio_segment) // CHUNK_LEN, # Last index
                 AudioSegment.silent(frame_rate=44100),   # Silent chunk
                 'wav', temp_dir, overlapping)
             chunks_arr.append(chunk_path)

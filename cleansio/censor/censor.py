@@ -2,7 +2,9 @@
 
 from multiprocessing import Lock
 from pydub import AudioSegment
+from audio import ChunkWrapper
 from speech import Timestamp, Transcribe
+from utils import CHUNK_LEN
 
 class Censor():
     """ Superclass of CensorFile and CensorRealtime """
@@ -19,39 +21,50 @@ class Censor():
         audio_segment = AudioSegment.from_file(file_path)
         lyrics = self.__get_lyrics(file_path, audio_segment)
         timestamps = self.__get_timestamps(lyrics)
+        wrapper = ChunkWrapper(audio_segment)
         if timestamps:
-            self.__mute_explicits(file_path, audio_segment, timestamps)
-        # Return a new AudioSegment object because the file may have changed
-        return AudioSegment.from_file(file_path)
+            return self.__mute_explicits(file_path, wrapper, timestamps)
+        else: # No mute so just return the original file
+            return wrapper
 
-    def __mute_explicits(self, file_path, audio_segment, timestamps):
+    def __mute_explicits(self, file_path, wrapper, timestamps):
         """ Go through each word, if its an explicit, mute the duration """
         muted = False
         for stamp in timestamps:
             if stamp['word'] in self.explicits: # Explicit found, mute
-                audio_segment = self.__mute_explicit(audio_segment, stamp)
+                wrapper = self.__mute_explicit(wrapper, stamp)
                 muted = True
                 chunk_index = int(file_path.split('-')[-1].split('.')[0])
-                self.__explicit_count(stamp, chunk_index * 5000)
+                self.__explicit_count(stamp, chunk_index * CHUNK_LEN)
         if muted:
             Censor.lock.acquire()
             # Overwrite the chunk with the mute(s) safely
-            audio_segment.export(file_path, format='wav')
+            wrapper.segment.export(file_path, format='wav')
             Censor.lock.release()
+        return wrapper
 
     @classmethod
-    def __mute_explicit(cls, audio_segment, timestamp):
-        len_as = len(audio_segment)
+    def __mute_explicit(cls, wrapper, timestamp):
+        len_as = len(wrapper.segment)
         # Check if the timestamp is outside of this chunk (from overlapping)
         if timestamp['start'] > len_as:
-            return audio_segment
-        beginning = audio_segment[:timestamp['start']]
-        duration = timestamp['end'] - timestamp['start']
-        mute = AudioSegment.silent(duration=duration)
+            return wrapper
+        beginning = wrapper.segment[:timestamp['start']]
         # The end of the timestamp cannot be longer than the file
-        end_length = len_as if len_as < timestamp['end'] else timestamp['end']
-        end = audio_segment[end_length:]
-        return beginning + mute + end
+        end_time = len_as if len_as < timestamp['end'] else timestamp['end']
+        duration = end_time - timestamp['start']
+        mute = AudioSegment.silent(duration=duration)
+        end = wrapper.segment[end_time:]
+        wrapper.segment = (beginning + mute + end)
+        wrapper.mute_next_start = \
+            cls.__mute_next_chunk(wrapper, timestamp['end'])
+        return wrapper
+
+    @classmethod
+    def __mute_next_chunk(cls, wrapper, end_time):
+        # Store how much the next chunk should mute from its beginning
+        extra_time = end_time - CHUNK_LEN
+        return max(extra_time, wrapper.mute_next_start)
 
     @classmethod
     def __get_lyrics(cls, file_path, audio_segment):

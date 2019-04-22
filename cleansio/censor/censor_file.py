@@ -19,7 +19,6 @@ class CensorFile(Censor):
 
     def censor(self):
         """ Creates a clean/new version of a file by removing explicits """
-        clean_file = AudioSegment.empty()
         audio_file = AudioFile(self.file_path)
         # Define the CLI progress bar
         p_bar, p_bar_step = self.__progress_bar(audio_file.normal_chunks)
@@ -29,8 +28,7 @@ class CensorFile(Censor):
             audio_file.normal_chunks)
         # Censor each audio chunk file asynchronously
         censored_chunks = ThreadPool(6).map(self.__censor_chunk, async_iter)
-        for chunk in censored_chunks: # Join the chunks together
-            clean_file += chunk
+        clean_file = self.__create_clean_segment(censored_chunks)
         p_bar.close()
         self.__create_clean_file(clean_file)
 
@@ -53,6 +51,17 @@ class CensorFile(Censor):
             return location[0]
         current_dir = str(Path(__file__).parents[2])
         return current_dir + '/clean_file.' + self.encoding
+
+    @classmethod
+    def __create_clean_segment(cls, censored_chunks):
+        clean_file = AudioSegment.empty()
+        s_mute = 0
+        for wrapper in censored_chunks: # Join the chunks together
+            # Mute the start of a chunk based on the previous chunk
+            clean_file += \
+                AudioSegment.silent(duration=s_mute) + wrapper.segment[s_mute:]
+            s_mute = wrapper.mute_next_start
+        return clean_file
 
     @classmethod
     def __progress_bar(cls, normal_chunks):
