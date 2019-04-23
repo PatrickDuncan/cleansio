@@ -92,6 +92,7 @@ class CensorRealtimeMac(Censor):
 
     def run(self):
         index = 0
+        leftover_mute = 0
         # overlapping_chunk_start = AudioSegment.empty() #convert_audio_segment(AudioSegment.silent(duration=2500))
         while True:
             if (not CensorRealtimeMac.running):
@@ -142,7 +143,10 @@ class CensorRealtimeMac(Censor):
                     overlapping_accuracy_chunk = improve_accuracy(overlapping_chunk)
                     convert_and_write_chunk(overlapping_accuracy_chunk, chunk_file, 'wav')
 
-                clean_chunk = self.censor_audio_chunk(file_path)
+                clean_chunk_wrapper = self.censor_audio_chunk(file_path)
+                clean_chunk = AudioSegment.silent(duration=leftover_mute) + clean_chunk_wrapper.segment[leftover_mute:]
+                leftover_mute = clean_chunk_wrapper.mute_next_start
+                if leftover_mute > 0: print("Remember to mute " + str(leftover_mute) + "s at the start of the next chunk") 
                 clean_chunk_filepath = self.directory + 'clean_chunk.wav'
                 clean_chunk.export(clean_chunk_filepath, format='wav')
 
