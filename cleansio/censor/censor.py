@@ -26,7 +26,7 @@ class Censor():
     def censor_audio_chunk(self, file_path):
         """ Common process to censor an audio chunk """
         audio_segment = AudioSegment.from_file(file_path)
-        if Censor.leftover > 0:
+        if 'CLEANSIO_REALTIME' in environ and Censor.leftover > 0:
             audio_segment = AudioSegment.silent(duration=Censor.leftover) + audio_segment[Censor.leftover:]
             with open(file_path, 'wb') as chunk_file:
                     convert_and_write_chunk(audio_segment, chunk_file, 'wav')
@@ -83,13 +83,13 @@ class Censor():
         # Check if the timestamp is outside of this chunk (from overlapping)
         if timestamp['start'] > len_as:
             return wrapper
-        start_time = wrapper.segment[:timestamp['start']]
+        beginning = wrapper.segment[:timestamp['start']]
         # The end of the timestamp cannot be longer than the file
         end_time = len_as if len_as < timestamp['end'] else timestamp['end']
         duration = end_time - timestamp['start']
         mute = AudioSegment.silent(duration=duration)
         end = wrapper.segment[end_time:]
-        wrapper.segment = (start_time + mute + end)
+        wrapper.segment = (beginning + mute + end)
         wrapper.mute_next_start = \
             cls.__mute_next_chunk(wrapper, timestamp['end'])
         return wrapper

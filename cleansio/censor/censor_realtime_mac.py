@@ -79,7 +79,6 @@ class CensorRealtimeMac(Censor):
                 outdata.fill(0)
 
     def finished_callback(self):
-        self.print_explicits_count()
         if self.args.store_recording:
             trailing_audio_length = len(self.playback_queue) * 5000
             print("clean audio file len is " + str(len(self.audio_file)))
@@ -88,6 +87,8 @@ class CensorRealtimeMac(Censor):
             if trailing_audio_length > 0:
                 self.audio_file = self.audio_file[:-trailing_audio_length]
             self.create_clean_file(self.audio_file)
+        else:
+            self.print_explicits_count()
 
     def run(self):
         index = 0
