@@ -14,6 +14,7 @@ def setup_cli_args():
     parser = __set_output_path(parser)
     parser = __set_output_encoding(parser)
     parser = __set_output_encoding_list(parser)
+    parser = __set_store_recording(parser)
     args = parser.parse_args() # NOTE: Cannot add args after calling parse_args
     __exiting_args(args)
     __validate_args(args, parser)
@@ -48,6 +49,15 @@ def __set_combine_list(parser):
         program\'s internal list by default. However, you can pass \
         this option in addition to -u to have your list combined with the \
         internal list.')
+    return parser
+
+def __set_store_recording(parser):
+    """ Allows the user to determine where the clean file is created """
+    parser.add_argument(
+        '-s',
+        '--store-recording',
+        action='store_true',
+        help='save the clean realtime audio as a file in the output location')
     return parser
 
 def __set_output_path(parser):

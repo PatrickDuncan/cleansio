@@ -8,6 +8,7 @@ from audio import ChunkWrapper
 from speech import Timestamp, Transcribe
 from utils import CHUNK_LEN
 from audio import convert_and_write_chunk
+from os import environ
 
 class Censor():
     """ Superclass of CensorFile and CensorRealtime """
@@ -31,7 +32,7 @@ class Censor():
                     convert_and_write_chunk(audio_segment, chunk_file, 'wav')
             print("Censoring " + str(Censor.leftover) + " length at start of this chunk and appending it to the remaing " + str(len(audio_segment[Censor.leftover:]))+ "s of chunk audio")
         lyrics = self.__get_lyrics(file_path, audio_segment)
-        print('lyrics = '+str(lyrics))
+        # print('lyrics = '+str(lyrics))
         timestamps = self.__get_timestamps(lyrics)
         wrapper = ChunkWrapper(audio_segment)
         print('timestamps = '+str(timestamps))
@@ -41,21 +42,24 @@ class Censor():
             return wrapper
 
     def create_clean_file(self, clean_file):
-        print('Cleansio found {1}{0}{2} explicit(s)!'.format(
-            Censor.explicit_count, Fore.GREEN, Fore.RESET))
+        self.print_explicits_count()
         clean_file.export(self.location, format=self.encoding)
         print(Fore.CYAN + 'Successfully created clean file, it\'s located at:')
         print(Fore.YELLOW + self.location)
+
+    def print_explicits_count(self):
+        print('Cleansio found {1}{0}{2} explicit(s)!'.format(
+            Censor.explicit_count, Fore.GREEN, Fore.RESET))
 
     def __mute_explicits(self, file_path, wrapper, timestamps):
         """ Go through each word, if its an explicit, mute the duration """
         muted = False
         for stamp in timestamps:
             if stamp['word'] in self.explicits: # Explicit found, mute
-                wrapper = self.__mute_explicit(wrapper, stamp)
-                muted = True
                 chunk_index = int(file_path.split('-')[-1].split('.')[0])
                 print('Found ' + str(stamp) + ' at index ' + str(chunk_index))
+                wrapper = self.__mute_explicit(wrapper, stamp)
+                muted = True
                 self.__explicit_count(stamp, chunk_index * CHUNK_LEN)
         if muted:
             Censor.lock.acquire()

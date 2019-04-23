@@ -12,8 +12,8 @@ from .mac import MacUtil
 # The arguments are unused - they are only here to satisfy atexit.
 def cleanup(_sig_num=None, _cur_stack_frame=None):
     """ Removes temporary files """
-    # remove_conversions()
-    # remove_chunks()
+    remove_conversions()
+    remove_chunks()
     system = platform.system()
     if system == 'Darwin':
         MacUtil.clean()

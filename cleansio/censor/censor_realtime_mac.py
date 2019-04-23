@@ -25,7 +25,9 @@ class CensorRealtimeMac(Censor):
         super().__init__(explicits, args.output_encoding, args.output_location)
         self.__switch_audio_source()
         create_env_var('CLEANSIO_CHUNKS_LIST', '[]')
-        self.chunk_prefix = create_temp_dir() + time_filename() + '-'
+        self.args = args
+        self.directory = create_temp_dir()
+        self.chunk_prefix = self.directory + time_filename() + '-'
         self.audio_file = AudioSegment.empty()
         self.processing_queue = []
         self.processing_lock = threading.Lock()
@@ -77,7 +79,15 @@ class CensorRealtimeMac(Censor):
                 outdata.fill(0)
 
     def finished_callback(self):
-        self.create_clean_file(self.audio_file)
+        self.print_explicits_count()
+        if self.args.store_recording:
+            trailing_audio_length = len(self.playback_queue) * 5000
+            print("clean audio file len is " + str(len(self.audio_file)))
+            print("trimming " + str(trailing_audio_length) + "s of audio from end of clean audio file")
+            print("clean audio file len is " + str(len(self.audio_file)))
+            if trailing_audio_length > 0:
+                self.audio_file = self.audio_file[:-trailing_audio_length]
+            self.create_clean_file(self.audio_file)
 
     def run(self):
         index = 0
@@ -132,7 +142,7 @@ class CensorRealtimeMac(Censor):
                     convert_and_write_chunk(overlapping_accuracy_chunk, chunk_file, 'wav')
 
                 clean_chunk = self.censor_audio_chunk(file_path)
-                clean_chunk_filepath = create_temp_dir() + 'clean_chunk.wav'
+                clean_chunk_filepath = self.directory + 'clean_chunk.wav'
                 clean_chunk.export(clean_chunk_filepath, format='wav')
 
                 # Read and convert it to frames
@@ -140,7 +150,8 @@ class CensorRealtimeMac(Censor):
                 with self.playback_lock:
                     self.playback_queue.append(clean_frames)
                 index += 1
-                self.audio_file += clean_chunk
+                if self.args.store_recording:
+                    self.audio_file += clean_chunk
 
     @classmethod
     def __switch_audio_source(cls):
