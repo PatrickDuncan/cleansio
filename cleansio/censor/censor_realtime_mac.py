@@ -8,7 +8,7 @@ from audio import improve_accuracy, convert_audio_segment, \
 from pathlib import Path
 from pydub import AudioSegment
 from colorama import Fore
-from collections import deque
+from utils import CHUNK_LEN
 
 import os
 import sounddevice as sd
@@ -28,17 +28,17 @@ class CensorRealtimeMac(Censor):
         self.args = args
         self.directory = create_temp_dir()
         self.chunk_prefix = self.directory + time_filename() + '-'
-        self.audio_file = AudioSegment.empty()
+        self.clean_file = AudioSegment.empty()
         self.processing_queue = []
         self.processing_lock = threading.Lock()
         self.playback_queue = []
         self.playback_lock = threading.Lock()
+        self.samplerate = 44100 # Hertz
+        self.duration = 5 # seconds
 
     def censor(self):
         """ Censors audio chunks in a continuous stream """
         """ Creates a clean/new version of a file by removing explicits """
-        samplerate = 44100  # Hertz
-        duration = 5  # seconds
 
         # Start thread that will analyze and censor recorded chunks
         processing_thread = threading.Thread(target=self.run)
@@ -48,7 +48,7 @@ class CensorRealtimeMac(Censor):
         try:
             # listen from Soundflower, play to speakers
             with sd.Stream(device=(2, 1),
-                       samplerate=samplerate, blocksize=int(samplerate*duration),
+                       samplerate=self.samplerate, blocksize=int(self.samplerate*self.duration),
                        channels=1, callback=self.callback, finished_callback=self.finished_callback):
                 print('#' * 80)
                 print('press Return to stop censoring')
@@ -80,25 +80,24 @@ class CensorRealtimeMac(Censor):
 
     def finished_callback(self):
         if self.args.store_recording:
-            trailing_audio_length = len(self.playback_queue) * 5000
-            print("clean audio file len is " + str(len(self.audio_file)))
+            trailing_audio_length = len(self.playback_queue) * CHUNK_LEN
+            print("clean audio file len is " + str(len(self.clean_file)))
             print("trimming " + str(trailing_audio_length) + "s of audio from end of clean audio file")
-            print("clean audio file len is " + str(len(self.audio_file)))
+            print("clean audio file len is " + str(len(self.clean_file)))
             if trailing_audio_length > 0:
-                self.audio_file = self.audio_file[:-trailing_audio_length]
-            self.create_clean_file(self.audio_file)
+                self.clean_file = self.clean_file[:-trailing_audio_length]
+            self.create_clean_file(self.clean_file)
         else:
             self.print_explicits_count()
 
     def run(self):
         index = 0
         leftover_mute = 0
-        # overlapping_chunk_start = AudioSegment.empty() #convert_audio_segment(AudioSegment.silent(duration=2500))
+
         while True:
             if (not CensorRealtimeMac.running):
                 break
 
-            processing_queue_length = 0;
             with self.processing_lock:
                 processing_queue_length = len(self.processing_queue)
 
@@ -106,57 +105,64 @@ class CensorRealtimeMac(Censor):
                 print('processing_queue length='+str(processing_queue_length))
                 print('index={}'.format(index))
                 with self.processing_lock:
+                    print(len(self.processing_queue))
                     frames_to_process = self.processing_queue.pop(0)
-
-                # Write recording to file
-                file_path = self.chunk_prefix + str(index) +'.wav'
-                sf.write(file_path, frames_to_process, 44100)
-                self.__update_env_chunks_list(file_path)
-                # Create AudioSegment object from recording and append it to list
-                recorded_chunk = read_and_convert_audio(file_path)
-
                 with self.processing_lock:
-                    next_recorded_chunk_frames = self.processing_queue[0]
-                # Write adjacent chunk to file for overlapping
-                next_recorded_chunk_frames_file_path = self.chunk_prefix + str(index+1) +'.wav'
-                sf.write(next_recorded_chunk_frames_file_path, next_recorded_chunk_frames, 44100)
-                self.__update_env_chunks_list(next_recorded_chunk_frames_file_path)
-                # Create AudioSegment object from recording and append it to list
-                next_recorded_chunk = read_and_convert_audio(next_recorded_chunk_frames_file_path)
+                    print(len(self.processing_queue))
+                    next_frames = self.processing_queue[0]
 
-                # Use second half of recorded chunk to start overlapping chunk
-                overlapping_chunk = recorded_chunk[-2500:] + next_recorded_chunk[:2500]
-                overlapping_path = append_before_ext(file_path, '-overlapping')
-                convert_and_write_chunk(overlapping_chunk, overlapping_path, 'wav')
-                self.__update_env_chunks_list(overlapping_path)
+                # Convert next two recordings into chunks
+                recorded_chunk, file_path = self.__convert_frames_to_chunk(frames_to_process, index)
+                next_recorded_chunk, _ = self.__convert_frames_to_chunk(next_frames, (index+1)*5)
 
-                # Create next overlapping_start from second half of recorded chunk
-                # overlapping_chunk_start = recorded_chunk[-2500:]
+                overlapping_chunk, overlapping_path = self.__create_overlapping_chunk(recorded_chunk, next_recorded_chunk, file_path)
 
-                accuracy_path = append_before_ext(file_path, '-accuracy')
-                with open(accuracy_path, 'wb') as chunk_file:
-                    accuracy_chunk = improve_accuracy(recorded_chunk)
-                    convert_and_write_chunk(accuracy_chunk, chunk_file, 'wav')
+                # Create accuracy chunk for current chunk and overlapping chunk
+                self.__create_accuracy_chunk(recorded_chunk, file_path)
+                self.__create_accuracy_chunk(overlapping_chunk, overlapping_path)
 
-                overlapping_accuracy_path = append_before_ext(overlapping_path, '-accuracy')
-                with open(overlapping_accuracy_path, 'wb') as chunk_file:
-                    overlapping_accuracy_chunk = improve_accuracy(overlapping_chunk)
-                    convert_and_write_chunk(overlapping_accuracy_chunk, chunk_file, 'wav')
-
+                # censor current chunk and also mute any spillover explicits from previous chunk
                 clean_chunk_wrapper = self.censor_audio_chunk(file_path)
                 clean_chunk = AudioSegment.silent(duration=leftover_mute) + clean_chunk_wrapper.segment[leftover_mute:]
-                leftover_mute = clean_chunk_wrapper.mute_next_start
-                if leftover_mute > 0: print("Remember to mute " + str(leftover_mute) + "s at the start of the next chunk") 
-                clean_chunk_filepath = self.directory + 'clean_chunk.wav'
-                clean_chunk.export(clean_chunk_filepath, format='wav')
 
-                # Read and convert it to frames
-                clean_frames, sample_rate = sf.read(clean_chunk_filepath, dtype='float32', fill_value=0.0, frames=int(44100*5), always_2d=True)
+                # remember to mute any overlapping explicit in the next chunk
+                leftover_mute = clean_chunk_wrapper.mute_next_start
+                if leftover_mute > 0: print("Remember to mute " + str(leftover_mute) + "s at the start of the next chunk")
+
+                # Convert current chunk into frames and add it to the playback queue
+                clean_frames = self.__convert_clean_chunk_to_frames(clean_chunk)
                 with self.playback_lock:
                     self.playback_queue.append(clean_frames)
-                index += 1
+                
                 if self.args.store_recording:
-                    self.audio_file += clean_chunk
+                    self.clean_file += clean_chunk
+
+                index += 1
+
+    def __convert_frames_to_chunk(self, frames, index):
+        file_path = self.chunk_prefix + str(index) +'.wav'
+        sf.write(file_path, frames, self.samplerate)
+        self.__update_env_chunks_list(file_path)
+        recorded_chunk = read_and_convert_audio(file_path)
+        return recorded_chunk, file_path
+
+    def __convert_clean_chunk_to_frames(self, chunk):
+        clean_chunk_filepath = self.directory + 'clean_chunk.wav'
+        chunk.export(clean_chunk_filepath, format='wav')
+        clean_frames, _ = sf.read(clean_chunk_filepath, dtype='float32', fill_value=0.0, frames=int(self.samplerate*self.duration), always_2d=True)
+        return clean_frames
+
+    def __create_overlapping_chunk(self, chunk1, chunk2, file_path):
+        overlapping_chunk = chunk1[2500:] + chunk2[:2500]
+        overlapping_path = append_before_ext(file_path, '-overlapping')
+        convert_and_write_chunk(overlapping_chunk, overlapping_path, 'wav')
+        self.__update_env_chunks_list(overlapping_path)
+        return overlapping_chunk, overlapping_path
+
+    def __create_accuracy_chunk(self, chunk, file_path):
+        accuracy_chunk_file_path = append_before_ext(file_path, '-accuracy')
+        accuracy_chunk = improve_accuracy(chunk)
+        convert_and_write_chunk(accuracy_chunk, accuracy_chunk_file_path, 'wav')
 
     @classmethod
     def __switch_audio_source(cls):

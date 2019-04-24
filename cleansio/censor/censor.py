@@ -15,7 +15,6 @@ class Censor():
     lock = Lock()
     explicit_count = 0
     muted_timestamps = []
-    leftover = 0
 
     def __init__(self, explicits, output_encoding, output_location):
         super().__init__()
@@ -26,11 +25,6 @@ class Censor():
     def censor_audio_chunk(self, file_path):
         """ Common process to censor an audio chunk """
         audio_segment = AudioSegment.from_file(file_path)
-        if 'CLEANSIO_REALTIME' in environ and Censor.leftover > 0:
-            audio_segment = AudioSegment.silent(duration=Censor.leftover) + audio_segment[Censor.leftover:]
-            with open(file_path, 'wb') as chunk_file:
-                    convert_and_write_chunk(audio_segment, chunk_file, 'wav')
-            print("Censoring " + str(Censor.leftover) + " length at start of this chunk and appending it to the remaing " + str(len(audio_segment[Censor.leftover:]))+ "s of chunk audio")
         lyrics = self.__get_lyrics(file_path, audio_segment)
         # print('lyrics = '+str(lyrics))
         timestamps = self.__get_timestamps(lyrics)
