@@ -2,6 +2,7 @@ from appJar import gui # Used to create the GUI
 from platform import system # Used to determine which OS the script is running on
 from os.path import expanduser # Used to find the user' s home dir.
 from tempfile import NamedTemporaryFile
+import os
 
 # Path to cleansio
 CLEANSIO_PATH = "../cleansio.py"
@@ -24,9 +25,11 @@ def press(button):
 	
 		if len(uExps) > 0: # The user provided a list of explicits
 			tempFile = NamedTemporaryFile() # Create a temporary file
+			print("tempFile = {0}".format(tempFile))
 		
-			for explicit in uExps: # For each explicit word
-		 		tempFile.write("{0}\n".format(explicit))
+			for explicit in uExps: 
+			    word = "{0}\n".format(explicit) # For each explicit word
+			    tempFile.write(word.encode("utf-8"))
 	
 		if len(songs) > 0:
 		
@@ -40,6 +43,7 @@ def press(button):
 					command = "{0} -o {1}/{2}".format(command, outDir, fName)
 				
 				print("Conversion command = {0}".format(command))
+				os.system(command)
 	
 		else:
 			msg = "You must enter at least one song to convert"
