@@ -1,0 +1,172 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>audio package &#8212; Cleansio  documentation</title>
+    <link rel="stylesheet" href="static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="static/documentationoptions.js"></script>
+    <script type="text/javascript" src="static/jquery.js"></script>
+    <script type="text/javascript" src="static/underscore.js"></script>
+    <script type="text/javascript" src="static/doctools.js"></script>
+    <script type="text/javascript" src="static/languagedata.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <a href="https://github.com/PatrickDuncan/cleansio"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkmerightdarkblue121621.png"></a><div class="section" id="audio-package">
+<h1>audio package<a class="headerlink" href="#audio-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-audio.accuracy">
+<span id="audio-accuracy-module"></span><h2>audio.accuracy module<a class="headerlink" href="#module-audio.accuracy" title="Permalink to this headline">¶</a></h2>
+<p>Functions which preprocess an audio chunk to improve the accuracy of speech
+recognition.</p>
+<dl class="function">
+<dt id="audio.accuracy.improve_accuracy">
+<code class="descclassname">audio.accuracy.</code><code class="descname">improve_accuracy</code><span class="sig-paren">(</span><em>chunk</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/audio/accuracy.html#improveaccuracy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#audio.accuracy.improveaccuracy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter chunk through various functions to improve speech recognition</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-audio.audio_file">
+<span id="audio-audio-file-module"></span><h2>audio.audio_file module<a class="headerlink" href="#module-audio.audiofile" title="Permalink to this headline">¶</a></h2>
+<p>Classifies an audio file that will be broken up into chunks</p>
+<dl class="class">
+<dt id="audio.audio_file.AudioFile">
+<em class="property">class </em><code class="descclassname">audio.audio_file.</code><code class="descname">AudioFile</code><span class="sig-paren">(</span><em>file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/audio/audiofile.html#AudioFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#audio.audiofile.AudioFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Classifies an audio file</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-audio.chunk_wrapper">
+<span id="audio-chunk-wrapper-module"></span><h2>audio.chunk_wrapper module<a class="headerlink" href="#module-audio.chunkwrapper" title="Permalink to this headline">¶</a></h2>
+<p>Wrapper for pydub’s AudioSegment, used to add new properties</p>
+<dl class="class">
+<dt id="audio.chunk_wrapper.ChunkWrapper">
+<em class="property">class </em><code class="descclassname">audio.chunk_wrapper.</code><code class="descname">ChunkWrapper</code><span class="sig-paren">(</span><em>audio_segment</em>, <em>mute_next_chunk=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/audio/chunkwrapper.html#ChunkWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#audio.chunkwrapper.ChunkWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrapper for pydub’s AudioSegment</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-audio.convert">
+<span id="audio-convert-module"></span><h2>audio.convert module<a class="headerlink" href="#module-audio.convert" title="Permalink to this headline">¶</a></h2>
+<p>Converts audio properties</p>
+<dl class="function">
+<dt id="audio.convert.convert">
+<code class="descclassname">audio.convert.</code><code class="descname">convert</code><span class="sig-paren">(</span><em>file_path</em>, <em>encoding='wav'</em><span class="sig-paren">)</span><a class="reference internal" href="modules/audio/convert.html#convert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#audio.convert.convert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts an audio file’s encoding, returns the file path</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="audio.convert.convert_and_write_chunk">
+<code class="descclassname">audio.convert.</code><code class="descname">convert_and_write_chunk</code><span class="sig-paren">(</span><em>chunk</em>, <em>file_path</em>, <em>encoding</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/audio/convert.html#convert_and_write_chunk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#audio.convert.convert_andwritechunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a GCS AudioSegment and write to the file path</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="audio.convert.convert_audio_segment">
+<code class="descclassname">audio.convert.</code><code class="descname">convert_audio_segment</code><span class="sig-paren">(</span><em>audio_segment</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/audio/convert.html#convert_audio_segment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#audio.convert.convertaudiosegment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a GCS AudioSegment</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="audio.convert.read_and_convert_audio">
+<code class="descclassname">audio.convert.</code><code class="descname">read_and_convert_audio</code><span class="sig-paren">(</span><em>file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/audio/convert.html#read_and_convert_audio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#audio.convert.read_andconvertaudio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a GCS AudioSegment from the file_path</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-audio">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-audio" title="Permalink to this headline">¶</a></h2>
+<p>Makes the directory a package. Acts as a public interface.</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Cleansio</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Patrick Duncan, Victor Carri, Levin Noronha, Corie Bain.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="sources/audio.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

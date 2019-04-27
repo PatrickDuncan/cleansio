@@ -1,0 +1,46 @@
+audio package
+=============
+
+Submodules
+----------
+
+audio.accuracy module
+---------------------
+
+.. automodule:: audio.accuracy
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+audio.audio\_file module
+------------------------
+
+.. automodule:: audio.audio_file
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+audio.chunk\_wrapper module
+---------------------------
+
+.. automodule:: audio.chunk_wrapper
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+audio.convert module
+--------------------
+
+.. automodule:: audio.convert
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: audio
+    :members:
+    :undoc-members:
+    :show-inheritance:

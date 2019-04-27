@@ -1,0 +1,169 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>censor.censor_file &#8212; Cleansio  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for censor.censor_file</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; Creates a clean version of a file by removing explicits &quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">repeat</span>
+<span class="kn">from</span> <span class="nn">multiprocessing.dummy</span> <span class="k">import</span> <span class="n">Pool</span> <span class="k">as</span> <span class="n">ThreadPool</span>
+<span class="kn">from</span> <span class="nn">colorama</span> <span class="k">import</span> <span class="n">Fore</span><span class="p">,</span> <span class="n">Style</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span> <span class="nn">pydub</span> <span class="k">import</span> <span class="n">AudioSegment</span>
+<span class="kn">from</span> <span class="nn">audio</span> <span class="k">import</span> <span class="n">AudioFile</span>
+<span class="kn">from</span> <span class="nn">.censor</span> <span class="k">import</span> <span class="n">Censor</span>
+
+<div class="viewcode-block" id="CensorFile"><a class="viewcode-back" href="../../censor.html#censor.censor_file.CensorFile">[docs]</a><span class="k">class</span> <span class="nc">CensorFile</span><span class="p">(</span><span class="n">Censor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Removes explicits from a file &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">explicits</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">explicits</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">output_encoding</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">output_location</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">file_path</span>
+
+<div class="viewcode-block" id="CensorFile.censor"><a class="viewcode-back" href="../../censor.html#censor.censor_file.CensorFile.censor">[docs]</a>    <span class="k">def</span> <span class="nf">censor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Creates a clean/new version of a file by removing explicits &quot;&quot;&quot;</span>
+        <span class="n">audio_file</span> <span class="o">=</span> <span class="n">AudioFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="c1"># Define the CLI progress bar</span>
+        <span class="n">p_bar</span><span class="p">,</span> <span class="n">p_bar_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__progress_bar</span><span class="p">(</span><span class="n">audio_file</span><span class="o">.</span><span class="n">normal_chunks</span><span class="p">)</span>
+        <span class="n">async_iter</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="n">repeat</span><span class="p">(</span><span class="n">p_bar</span><span class="p">),</span>
+            <span class="n">repeat</span><span class="p">(</span><span class="n">p_bar_step</span><span class="p">),</span>
+            <span class="n">audio_file</span><span class="o">.</span><span class="n">normal_chunks</span><span class="p">)</span>
+        <span class="c1"># Censor each audio chunk file asynchronously</span>
+        <span class="n">censored_chunks</span> <span class="o">=</span> <span class="n">ThreadPool</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__censor_chunk</span><span class="p">,</span> <span class="n">async_iter</span><span class="p">)</span>
+        <span class="n">clean_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__create_clean_segment</span><span class="p">(</span><span class="n">censored_chunks</span><span class="p">)</span>
+        <span class="n">p_bar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_clean_file</span><span class="p">(</span><span class="n">clean_file</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__censor_chunk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">async_iter</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Censors a chunk and updates the progress bar &quot;&quot;&quot;</span>
+        <span class="n">p_bar</span><span class="p">,</span> <span class="n">p_bar_step</span><span class="p">,</span> <span class="n">chunk_file_path</span> <span class="o">=</span> <span class="n">async_iter</span>
+        <span class="n">p_bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">p_bar_step</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">censor_audio_chunk</span><span class="p">(</span><span class="n">chunk_file_path</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__create_clean_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clean_file</span><span class="p">):</span>
+        <span class="n">exp</span> <span class="o">=</span> <span class="s1">&#39;explicit&#39;</span> <span class="k">if</span> <span class="n">Censor</span><span class="o">.</span><span class="n">explicit_count</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;explicits&#39;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Cleansio found </span><span class="si">{1}{2}{0}{3}</span><span class="s1"> </span><span class="si">{4}</span><span class="s1">!&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">Censor</span><span class="o">.</span><span class="n">explicit_count</span><span class="p">,</span> <span class="n">Style</span><span class="o">.</span><span class="n">BRIGHT</span><span class="p">,</span> <span class="n">Fore</span><span class="o">.</span><span class="n">GREEN</span><span class="p">,</span> <span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span><span class="p">,</span> <span class="n">exp</span><span class="p">))</span>
+        <span class="n">clean_file</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">Fore</span><span class="o">.</span><span class="n">CYAN</span> <span class="o">+</span> <span class="s1">&#39;Successfully created clean file, it</span><span class="se">\&#39;</span><span class="s1">s located at:&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">Fore</span><span class="o">.</span><span class="n">YELLOW</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__create_clean_segment</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">censored_chunks</span><span class="p">):</span>
+        <span class="n">clean_file</span> <span class="o">=</span> <span class="n">AudioSegment</span><span class="o">.</span><span class="n">empty</span><span class="p">()</span>
+        <span class="n">s_mute</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">wrapper</span> <span class="ow">in</span> <span class="n">censored_chunks</span><span class="p">:</span> <span class="c1"># Join the chunks together</span>
+            <span class="c1"># Mute the start of a chunk based on the previous chunk</span>
+            <span class="n">clean_file</span> <span class="o">+=</span> \
+                <span class="n">AudioSegment</span><span class="o">.</span><span class="n">silent</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">s_mute</span><span class="p">)</span> <span class="o">+</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">segment</span><span class="p">[</span><span class="n">s_mute</span><span class="p">:]</span>
+            <span class="n">s_mute</span> <span class="o">=</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">mute_next_start</span>
+        <span class="k">return</span> <span class="n">clean_file</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__progress_bar</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">normal_chunks</span><span class="p">):</span>
+        <span class="n">progress_bar_total</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="n">progress_bar</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span>
+            <span class="c1"># Remove the detailed percentage stats</span>
+            <span class="n">bar_format</span><span class="o">=</span><span class="n">Style</span><span class="o">.</span><span class="n">BRIGHT</span> <span class="o">+</span> <span class="n">Fore</span><span class="o">.</span><span class="n">GREEN</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="si">{l_bar}{bar}</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span><span class="p">,</span>
+            <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Censoring file&#39;</span><span class="p">,</span> <span class="c1"># Description</span>
+            <span class="n">leave</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>           <span class="c1"># Remove bar after completion</span>
+            <span class="n">ncols</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>              <span class="c1"># Set width</span>
+            <span class="n">total</span><span class="o">=</span><span class="n">progress_bar_total</span><span class="p">)</span>
+        <span class="n">progress_bar_step</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">normal_chunks</span><span class="p">))</span> <span class="o">*</span> <span class="n">progress_bar_total</span>
+        <span class="k">return</span> <span class="n">progress_bar</span><span class="p">,</span> <span class="n">progress_bar_step</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Cleansio</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Patrick Duncan, Victor Carri, Levin Noronha, Corie Bain.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,30 @@
+speech package
+==============
+
+Submodules
+----------
+
+speech.timestamp module
+-----------------------
+
+.. automodule:: speech.timestamp
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+speech.transcribe module
+------------------------
+
+.. automodule:: speech.transcribe
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: speech
+    :members:
+    :undoc-members:
+    :show-inheritance:

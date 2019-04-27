@@ -1,0 +1,7 @@
+cleansio module
+===============
+
+.. automodule:: cleansio
+    :members:
+    :undoc-members:
+    :show-inheritance:

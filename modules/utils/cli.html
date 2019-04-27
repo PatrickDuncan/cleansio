@@ -1,0 +1,234 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>utils.cli &#8212; Cleansio  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for utils.cli</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; Utillity functions for command line interfaces &quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">colorama</span> <span class="k">import</span> <span class="n">Fore</span>
+<span class="kn">from</span> <span class="nn">.files</span> <span class="k">import</span> <span class="n">relative_path</span>
+
+<div class="viewcode-block" id="setup_cli_args"><a class="viewcode-back" href="../../utils.html#utils.cli.setup_cli_args">[docs]</a><span class="k">def</span> <span class="nf">setup_cli_args</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; Defines the different CLI arguments &quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Real-time music censoring.&#39;</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">__set_file_path</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">__set_user_list</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">__set_combine_list</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">__set_output_path</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">__set_output_encoding</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">__set_output_encoding_list</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">__set_store_recording</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span> <span class="c1"># NOTE: Cannot add args after calling parse_args</span>
+    <span class="n">__exiting_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">__validate_args</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">parser</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">args</span></div>
+
+<span class="k">def</span> <span class="nf">__set_file_path</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;file_path&#39;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;enables file mode which creates a clean version of the file. </span><span class="se">\</span>
+<span class="s1">            Relative or full path&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span>
+
+<span class="k">def</span> <span class="nf">__set_user_list</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Sets the arguments which control the user list of explicit words &quot;&quot;&quot;</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;-u&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--user-list&#39;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;takes a path which points to a custom list of words which you </span><span class="se">\</span>
+<span class="s1">        would like to mark as explicit.&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span>
+
+<span class="k">def</span> <span class="nf">__set_combine_list</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Allows the user to combine their list with the internal list &quot;&quot;&quot;</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;-c&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--combine-lists&#39;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;the list which you provide with the </span><span class="se">\&#39;</span><span class="s1">-u</span><span class="se">\&#39;</span><span class="s1"> option replaces the </span><span class="se">\</span>
+<span class="s1">        program</span><span class="se">\&#39;</span><span class="s1">s internal list by default. However, you can pass </span><span class="se">\</span>
+<span class="s1">        this option in addition to -u to have your list combined with the </span><span class="se">\</span>
+<span class="s1">        internal list.&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span>
+
+<span class="k">def</span> <span class="nf">__set_store_recording</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Allows the user to determine where the clean file is created &quot;&quot;&quot;</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;-s&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--store-recording&#39;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;save the clean realtime audio as a file in the output location&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span>
+
+<span class="k">def</span> <span class="nf">__set_output_path</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Allows the user to determine where the clean file is created &quot;&quot;&quot;</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;-o&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--output-location&#39;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;takes a path which will overwrite the default location of where </span><span class="se">\</span>
+<span class="s1">        the clean file will be created. If the file already exists it will be </span><span class="se">\</span>
+<span class="s1">        overwritten.&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span>
+
+<span class="k">def</span> <span class="nf">__set_output_encoding</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Allows the user to determine the audio encoding of the clean file &quot;&quot;&quot;</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;-e&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--output-encoding&#39;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;specify the audio encoding type of the output file. The file </span><span class="se">\</span>
+<span class="s1">        extension of --output-location is not sufficient. Default is wav.&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span>
+
+<span class="k">def</span> <span class="nf">__set_output_encoding_list</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Allows the user to determine the different audio encoding types &quot;&quot;&quot;</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--output-encoding-list&#39;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;list the possible audio encoding types for the output file.&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span>
+
+<span class="k">def</span> <span class="nf">__exiting_args</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Handles arguments that simply print and exit &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">output_encoding_list</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">__encoding_types_path</span><span class="p">())</span> <span class="k">as</span> <span class="n">types</span><span class="p">:</span>
+            <span class="n">__exit</span><span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+<span class="k">def</span> <span class="nf">__validate_args</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Validates user input &quot;&quot;&quot;</span>
+    <span class="n">__validate_combine_list</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">parser</span><span class="p">)</span>
+    <span class="n">__validate_output_encoding</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">parser</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">__validate_combine_list</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
+    <span class="c1"># Ensure that the -u option is present if the -c option is given</span>
+    <span class="n">map_args</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="c1"># Convert the arguments to a map</span>
+    <span class="k">if</span> <span class="n">map_args</span><span class="p">[</span><span class="s1">&#39;combine_lists&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">map_args</span><span class="p">[</span><span class="s1">&#39;user_list&#39;</span><span class="p">]:</span>
+        <span class="n">__error</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s1">&#39;The -c option requires -u!&#39;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">__validate_output_encoding</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
+    <span class="c1"># Validate if the user&#39;s encoding is valid</span>
+    <span class="n">output_encoding</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">output_encoding</span>
+    <span class="k">if</span> <span class="n">output_encoding</span><span class="p">:</span>
+        <span class="n">encoding_choice</span> <span class="o">=</span> <span class="n">output_encoding</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">__encoding_types_path</span><span class="p">())</span> <span class="k">as</span> <span class="n">types</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">encoding_type</span> <span class="ow">in</span> <span class="n">types</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">encoding_type</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="n">encoding_choice</span><span class="p">:</span>
+                    <span class="n">valid</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="p">:</span>
+            <span class="n">__error</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">encoding_choice</span> <span class="o">+</span> <span class="s1">&#39; is not supported!&#39;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">__encoding_types_path</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">relative_path</span><span class="p">(</span><span class="s1">&#39;../data/encoding-types&#39;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">__error</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">Fore</span><span class="o">.</span><span class="n">RED</span> <span class="o">+</span> <span class="n">message</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">__exit</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Cleansio</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Patrick Duncan, Victor Carri, Levin Noronha, Corie Bain.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

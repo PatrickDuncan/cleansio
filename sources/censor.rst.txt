@@ -1,0 +1,46 @@
+censor package
+==============
+
+Submodules
+----------
+
+censor.censor module
+--------------------
+
+.. automodule:: censor.censor
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+censor.censor\_file module
+--------------------------
+
+.. automodule:: censor.censor_file
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+censor.censor\_realtime module
+------------------------------
+
+.. automodule:: censor.censor_realtime
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+censor.censor\_realtime\_mac module
+-----------------------------------
+
+.. automodule:: censor.censor_realtime_mac
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: censor
+    :members:
+    :undoc-members:
+    :show-inheritance:

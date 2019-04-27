@@ -1,0 +1,161 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>speech.transcribe &#8212; Cleansio  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for speech.transcribe</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; Convert audio to text using Google Cloud Speech &quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">repeat</span>
+<span class="kn">from</span> <span class="nn">multiprocessing.dummy</span> <span class="k">import</span> <span class="n">Pool</span> <span class="k">as</span> <span class="n">ThreadPool</span>
+<span class="kn">from</span> <span class="nn">google.cloud.speech</span> <span class="k">import</span> <span class="n">enums</span><span class="p">,</span> <span class="n">SpeechClient</span><span class="p">,</span> <span class="n">types</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="k">import</span> <span class="n">append_before_ext</span>
+
+<div class="viewcode-block" id="Transcribe"><a class="viewcode-back" href="../../speech.html#speech.transcribe.Transcribe">[docs]</a><span class="k">class</span> <span class="nc">Transcribe</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; Transcribes the lyrics from the vocals &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">frame_rate</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;LINEAR16&#39;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lyrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__transcribe_chunks</span><span class="p">(</span><span class="n">encoding</span><span class="p">,</span> <span class="n">frame_rate</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__transcribe_chunks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_rate</span><span class="p">,</span> <span class="n">encoding</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+        <span class="n">file_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">file_path</span><span class="p">,</span> <span class="n">append_before_ext</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;-overlapping&#39;</span><span class="p">)]</span>
+        <span class="n">async_iter</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">repeat</span><span class="p">(</span><span class="n">frame_rate</span><span class="p">),</span> <span class="n">repeat</span><span class="p">(</span><span class="n">encoding</span><span class="p">),</span> <span class="n">file_paths</span><span class="p">)</span>
+        <span class="n">transcripts</span> <span class="o">=</span> <span class="n">ThreadPool</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__transcribe_chunk</span><span class="p">,</span> <span class="n">async_iter</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__combine_transcripts</span><span class="p">(</span><span class="n">transcripts</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__transcribe_chunk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">async_iter</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Accesses Google Cloud Speech and print the lyrics for each chunk &quot;&quot;&quot;</span>
+        <span class="n">frame_rate</span><span class="p">,</span> <span class="n">encoding</span><span class="p">,</span> <span class="n">file_path</span> <span class="o">=</span> <span class="n">async_iter</span>
+        <span class="n">accuracy_chunk_path</span> <span class="o">=</span> <span class="n">append_before_ext</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;-accuracy&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">accuracy_chunk_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">audio_content</span><span class="p">:</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">audio_content</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="n">encoding</span><span class="p">,</span> <span class="n">frame_rate</span><span class="p">)</span>
+        <span class="n">audio</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">RecognitionAudio</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">SpeechClient</span><span class="p">()</span><span class="o">.</span><span class="n">recognize</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">audio</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__get_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">frame_rate</span><span class="p">,</span> <span class="n">encoding</span><span class="p">):</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;encoding&#39;</span><span class="p">:</span> <span class="n">enums</span><span class="o">.</span><span class="n">RecognitionConfig</span><span class="o">.</span><span class="n">AudioEncoding</span><span class="p">[</span><span class="n">encoding</span><span class="p">],</span>
+            <span class="s1">&#39;sample_rate_hertz&#39;</span><span class="p">:</span> <span class="n">frame_rate</span><span class="p">,</span>
+            <span class="s1">&#39;language_code&#39;</span><span class="p">:</span> <span class="s1">&#39;en-US&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;enable_word_time_offsets&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;profanity_filter&#39;</span><span class="p">:</span> <span class="kc">False</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">types</span><span class="o">.</span><span class="n">RecognitionConfig</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__combine_transcripts</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">transcripts</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Combine the words from the normal and overlapping chunks &quot;&quot;&quot;</span>
+        <span class="n">words</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">transcripts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">results</span><span class="p">:</span> <span class="c1"># Normal chunk</span>
+            <span class="n">words</span> <span class="o">+=</span> <span class="n">transcripts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">alternatives</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">words</span>
+        <span class="k">if</span> <span class="n">transcripts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">results</span><span class="p">:</span> <span class="c1"># Overlapping chunk</span>
+            <span class="n">overlapping</span> <span class="o">=</span> <span class="n">transcripts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">alternatives</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">words</span>
+            <span class="n">shifted_time</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">__shift_time</span><span class="p">,</span> <span class="n">overlapping</span><span class="p">))</span>
+            <span class="n">words</span> <span class="o">+=</span> <span class="n">shifted_time</span>
+        <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">words</span> <span class="o">==</span> <span class="p">[]</span> <span class="k">else</span> <span class="n">words</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__shift_time</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Increment the time relative to the normal chunk &quot;&quot;&quot;</span>
+        <span class="n">word</span><span class="o">.</span><span class="n">start_time</span><span class="o">.</span><span class="n">seconds</span> <span class="o">+=</span> <span class="mi">2</span>
+        <span class="n">word</span><span class="o">.</span><span class="n">start_time</span><span class="o">.</span><span class="n">nanos</span> <span class="o">+=</span> <span class="mi">500000000</span>
+        <span class="n">word</span><span class="o">.</span><span class="n">end_time</span><span class="o">.</span><span class="n">seconds</span> <span class="o">+=</span> <span class="mi">2</span>
+        <span class="n">word</span><span class="o">.</span><span class="n">end_time</span><span class="o">.</span><span class="n">nanos</span> <span class="o">+=</span> <span class="mi">500000000</span>
+        <span class="k">return</span> <span class="n">word</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Cleansio</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Patrick Duncan, Victor Carri, Levin Noronha, Corie Bain.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

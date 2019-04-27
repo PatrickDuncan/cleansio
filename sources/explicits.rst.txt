@@ -1,0 +1,30 @@
+explicits package
+=================
+
+Submodules
+----------
+
+explicits.explicits module
+--------------------------
+
+.. automodule:: explicits.explicits
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+explicits.user\_explicits module
+--------------------------------
+
+.. automodule:: explicits.user_explicits
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: explicits
+    :members:
+    :undoc-members:
+    :show-inheritance:

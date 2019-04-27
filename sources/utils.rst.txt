@@ -1,0 +1,70 @@
+utils package
+=============
+
+Submodules
+----------
+
+utils.cleanup module
+--------------------
+
+.. automodule:: utils.cleanup
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+utils.cli module
+----------------
+
+.. automodule:: utils.cli
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+utils.constants module
+----------------------
+
+.. automodule:: utils.constants
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+utils.env module
+----------------
+
+.. automodule:: utils.env
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+utils.files module
+------------------
+
+.. automodule:: utils.files
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+utils.mac module
+----------------
+
+.. automodule:: utils.mac
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+utils.numbers module
+--------------------
+
+.. automodule:: utils.numbers
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
