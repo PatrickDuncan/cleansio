@@ -20,7 +20,7 @@ python cleansio/cleansio.py --help
 
 1. Check the Requirements
 2. Clone this repo
-3. Install Python 3.4+
+3. Install Python 3.5+
     - [Anaconda is recommended](https://www.anaconda.com/download/)
 4. Download your Google Cloud Credentials JSON file
 5. Set the following environment variables:
@@ -33,12 +33,13 @@ python cleansio/cleansio.py --help
     ```sh
     pip install -r requirements.txt
     ```
-8. _(OPTIONAL)_ If you're a developer run:
+8. Follow the **[real-time setup instructions](https://github.com/PatrickDuncan/cleansio/wiki/Real-Time-Installation)**
+9. _(OPTIONAL)_ If you're a developer run:
     ```sh
     pip install -r requirements-dev.txt
     ```
-9. _(OPTIONAL)_ Install the [Google Cloud SDK](https://cloud.google.com/sdk/docs/)
-10. You're all set!
+10. _(OPTIONAL)_ Install the [Google Cloud SDK](https://cloud.google.com/sdk/docs/)
+11. You're all set!
 
 ## Documentation
 

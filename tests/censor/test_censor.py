@@ -1,6 +1,7 @@
 #pylint: skip-file
 
 import os
+from pathlib import Path
 from pydub import AudioSegment, silence
 from audio import ChunkWrapper
 from censor import Censor
@@ -27,10 +28,10 @@ def test_censor():
 
         # Test that the explicits were successfully removed
         wrapper = ChunkWrapper(audio_segment_dup)
-        Censor(explicits)._Censor__mute_explicits(
-            file_path_dup, wrapper, timestamps)
+        location = str(Path(__file__).parents[2]) + '/clean_file.wav'
+        audio_segment_dup = Censor(explicits, 'wav', location)._Censor__mute_explicits(
+            file_path_dup, wrapper, timestamps).segment
         # Get the silence segments
-        audio_segment_dup = AudioSegment.from_file(file_path_dup)
         silent_ranges = silence.detect_silence(
             audio_segment_dup, min_silence_len=500, silence_thresh=-50)
 
@@ -47,3 +48,4 @@ def test_censor():
     finally:
         # Cleanup
         os.remove(file_path_dup)
+
